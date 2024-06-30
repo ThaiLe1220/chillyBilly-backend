@@ -1,0 +1,11 @@
+"""
+
+b'\x80\x9b@9\x019\x0c7\xdb4r\x1c\x0f\xd6\x1b\x96\xcd\xd9CaMe\x8f\x05'
+
+
+"""
+
+import os
+
+secret_key = os.urandom(24)
+print(secret_key)

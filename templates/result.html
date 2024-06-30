@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text-to-Speech Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Text-to-Speech Result</h1>
+    <p>Audio generated successfully. <a href="{{ file_url }}">Download here</a>.</p>
+    <audio controls>
+        <source src="{{ file_url }}" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+    <br>
+    <a href="{{ url_for('tts.index') }}">Generate another audio</a>
+</body>
+</html>
