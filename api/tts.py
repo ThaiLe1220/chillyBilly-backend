@@ -4,7 +4,7 @@ import requests
 import os
 import uuid
 from datetime import datetime
-from models import db, Audio
+from models_old import db, Audio
 
 tts_bp = Blueprint("tts", __name__)
 

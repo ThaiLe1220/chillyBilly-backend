@@ -11,7 +11,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 import secrets
 import bcrypt
-from models import (
+from models_old import (
     engine,
     User,
     UserProfile,
@@ -371,8 +371,8 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 
 
 #############################################
-# API endpoints for user profile management #
-############################################# ✅
+# API endpoints for user profile management # ✅
+#############################################
 @app.post("/users/{user_id}/profile/", response_model=UserProfileResponse)
 def create_user_profile(
     user_id: int, profile: UserProfileCreate, db: Session = Depends(get_db)

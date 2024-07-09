@@ -53,7 +53,7 @@ sudo apt install postgresql postgresql-contrib
 
 ### Step 3: Install Python dependencies
 
-pip install fastapi uvicorn sqlalchemy psycopg2-binary
+pip install -r requirements.txt
 
 ### Step 4: Create database schema
 
@@ -65,226 +65,227 @@ Certainly! Here's an updated README with instructions to test all features in th
 
 ### User Management
 
-1. Create users: ✅
+**Create users:** ✅
 
-   ```bash
-   curl -X POST "http://localhost:8000/users/" -H "Content-Type: application/json" -d '{"username":"testuser1", "email":"testuser1@example.com", "password":"testpassword1"}'
-   curl -X POST "http://localhost:8000/users/" -H "Content-Type: application/json" -d '{"username":"testuser2", "email":"testuser2@com.com", "password":"testpassword2"}'
-   curl -X POST "http://localhost:8000/users/" -H "Content-Type: application/json" -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}'
-   ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"testuser1", "email":"testuser1@example.com", "password":"testpassword1"}'
+curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"testuser2", "email":"testuser2@com.com", "password":"testpassword2"}'
+curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}'
+```
 
-2. Get all users: ✅
+**Get all users:** ✅
 
-   ```bash
-   curl "http://localhost:8000/users/"
-   ```
+```bash
+curl "http://localhost:8000/api/v1/users/"
+curl "http://localhost:8000/api/v1/users/10"
+```
 
-3. Update user information: ✅
+**Update user information:** ✅
 
-   ```bash
-   curl -X PUT "http://localhost:8000/users/10" -H "Content-Type: application/json" -d '{"email":"eugene2000@gmail.com", "password":"thai2000"}'
-   ```
+```bash
+curl -X PUT "http://localhost:8000/api/v1/users/10" -H "Content-Type: application/json" -d '{"email":"eugene2000@gmail.com", "password":"thai2000"}'
+```
 
-4. Delete a user: ✅
+**Delete a user:** ✅
 
-   ```bash
-   curl -X DELETE "http://localhost:8000/users/9"
-   ```
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/users/11"
+```
 
-5. Create a user profile: ✅
+**Create a user profile:** ✅
 
-   ```bash
-   curl -X POST "http://localhost:8000/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
+```bash
+curl -X POST "http://localhost:8000/api/v1/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
 
-   curl "http://localhost:8000/users/10/profile/"
-   ```
+curl "http://localhost:8000/api/v1/users/10/profile/"
+```
 
-6. Update user profile: ✅
+**Update user profile:** ✅
 
-   ```bash
-   curl -X PUT "http://localhost:8000/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
+```bash
+curl -X PUT "http://localhost:8000/api/v1/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
 
-   curl "http://localhost:8000/users/10/profile/"
-   ```
+curl "http://localhost:8000/api/v1/users/10/profile/"
+```
 
 ### Text Entries
 
-7. Create a text entry:
+**Create a text entry:** ✅
 
-   ```bash
-   curl -X POST "http://localhost:8000/users/10/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello, world!", "language":"en"}'
-   ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/users/10/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello, world!", "language":"en"}'
+```
 
-8. Get user's text entries:
+**Get user's text entries:** ✅
 
-   ```bash
-   curl "http://localhost:8000/users/1/text_entries/"
-   ```
+```bash
+curl "http://localhost:8000/api/v1/users/10/text_entries/"
+```
 
-9. Delete a text entry:
+**Delete a text entry:** ✅
 
-   ```bash
-   curl -X DELETE "http://localhost:8000/users/1/text_entries/1"
-   ```
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/users/1/text_entries/1"
+```
 
 ### Audio Generation
 
-10. Create generated audio:
+**Create generated audio:**
 
-    ```bash
-    curl -X POST "http://localhost:8000/generated_audio/" -H "Content-Type: application/json" -d '{"text_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
-    ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/generated_audio/" -H "Content-Type: application/json" -d '{"text_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
+```
 
-11. Get generated audio:
+**Get generated audio:**
 
-    ```bash
-    curl "http://localhost:8000/generated_audio/1"
-    ```
+```bash
+curl "http://localhost:8000/api/v1/generated_audio/1"
+```
 
 ### Voice Cloning
 
-12. Create a voice clone:
+**Create a voice clone:**
 
-    ```bash
-    curl -X POST "http://localhost:8000/users/1/voice_clones/" -H "Content-Type: application/json" -d '{"original_file_path":"/path/to/original_voice.wav"}'
-    ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/users/1/voice_clones/" -H "Content-Type: application/json" -d '{"original_file_path":"/path/to/original_voice.wav"}'
+```
 
-13. Get user's voice clones:
+**Get user's voice clones:**
 
-    ```bash
-    curl "http://localhost:8000/users/1/voice_clones/"
-    ```
+```bash
+curl "http://localhost:8000/api/v1/users/1/voice_clones/"
+```
 
-14. Delete a voice clone:
+**Delete a voice clone:**
 
-    ```bash
-    curl -X DELETE "http://localhost:8000/users/1/voice_clones/1"
-    ```
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/users/1/voice_clones/1"
+```
 
 ### User Feedback
 
-15. Create user feedback:
+**Create user feedback:**
 
-    ```bash
-    curl -X POST "http://localhost:8000/users/1/feedback/" -H "Content-Type: application/json" -d '{"audio_id":1, "rating":5, "comment":"Great audio quality!"}'
-    ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/users/1/feedback/" -H "Content-Type: application/json" -d '{"audio_id":1, "rating":5, "comment":"Great audio quality!"}'
+```
 
-16. Get user feedback:
+**Get user feedback:**
 
-    ```bash
-    curl "http://localhost:8000/users/1/feedback/"
-    ```
+```bash
+curl "http://localhost:8000/api/v1/users/1/feedback/"
+```
 
 ### System Settings
 
-17. Create a system setting:
+**Create a system setting:**
 
-    ```bash
-    curl -X POST "http://localhost:8000/system_settings/" -H "Content-Type: application/json" -d '{"key":"max_audio_length", "value":"300"}'
-    ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/system_settings/" -H "Content-Type: application/json" -d '{"key":"max_audio_length", "value":"300"}'
+```
 
-18. Get a system setting:
+**Get a system setting:**
 
-    ```bash
-    curl "http://localhost:8000/system_settings/max_audio_length"
-    ```
+```bash
+curl "http://localhost:8000/api/v1/system_settings/max_audio_length"
+```
 
-19. Update a system setting:
+**Update a system setting:**
 
-    ```bash
-    curl -X PUT "http://localhost:8000/system_settings/max_audio_length" -H "Content-Type: application/json" -d '{"value":"600"}'
-    ```
+```bash
+curl -X PUT "http://localhost:8000/api/v1/system_settings/max_audio_length" -H "Content-Type: application/json" -d '{"value":"600"}'
+```
 
 ### API Usage Logging
 
-20. Log API usage:
+**Log API usage:**
 
-    ```bash
-    curl -X POST "http://localhost:8000/api_usage/" -H "Content-Type: application/json" -d '{"user_id":1, "endpoint":"/users/"}'
-    ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/api_usage/" -H "Content-Type: application/json" -d '{"user_id":1, "endpoint":"/users/"}'
+```
 
-21. Get API usage for a user:
+**Get API usage for a user:**
 
-    ```bash
-    curl "http://localhost:8000/api_usage/1"
-    ```
+```bash
+curl "http://localhost:8000/api/v1/api_usage/1"
+```
 
 ### Error Logging
 
-22. Log an error:
+**Log an error:**
 
-    ```bash
-    curl -X POST "http://localhost:8000/error_logs/" -H "Content-Type: application/json" -d '{"error_type":"ValidationError", "error_message":"Invalid input", "stack_trace":"..."}'
-    ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/error_logs/" -H "Content-Type: application/json" -d '{"error_type":"ValidationError", "error_message":"Invalid input", "stack_trace":"..."}'
+```
 
-23. Get all error logs:
+**Get all error logs:**
 
-    ```bash
-    curl "http://localhost:8000/error_logs/"
-    ```
+```bash
+curl "http://localhost:8000/api/v1/error_logs/"
+```
 
 ### Session Management
 
-24. Create a session:
+**Create a session:**
 
-    ```bash
-    curl -X POST "http://localhost:8000/sessions/" -H "Content-Type: application/json" -d '{"user_id":1}'
-    ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/sessions/" -H "Content-Type: application/json" -d '{"user_id":1}'
+```
 
-25. Get a session by token (replace <token> with the actual token):
+**Get a session by token (replace <token> with the actual token):**
 
-    ```bash
-    curl "http://localhost:8000/sessions/<token>"
-    ```
+```bash
+curl "http://localhost:8000/api/v1/sessions/<token>"
+```
 
-26. Delete a session:
+**Delete a session:**
 
-    ```bash
-    curl -X DELETE "http://localhost:8000/sessions/<token>"
-    ```
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/sessions/<token>"
+```
 
 ### Usage History
 
-27. Log usage history:
+**Log usage history:**
 
-    ```bash
-    curl -X POST "http://localhost:8000/usage_history/" -H "Content-Type: application/json" -d '{"user_id":1, "action_type":"text_entry", "related_id":1}'
-    ```
+```bash
+curl -X POST "http://localhost:8000/api/v1/usage_history/" -H "Content-Type: application/json" -d '{"user_id":1, "action_type":"text_entry", "related_id":1}'
+```
 
-28. Get usage history for a user:
+**Get usage history for a user:**
 
-    ```bash
-    curl "http://localhost:8000/usage_history/1"
-    ```
+```bash
+curl "http://localhost:8000/api/v1/usage_history/1"
+```
 
 ### Database Verification
 
 To verify the database state, connect to PostgreSQL and check the tables:
 
-1. Connect to the database:
+**Connect to the database:****
 
-   ```bash
-   psql -U tts_user -d tts_app
-   ```
+```bash
+psql -U tts_user -d tts_app
+```
 
-2. List all tables:
+**List all tables:**
 
-   ```sql
-   \dt
-   ```
+```sql
+\dt
+```
 
-3. View contents of specific tables:
+**View contents of specific tables:**
 
-   ```sql
-   SELECT * FROM users;
-   SELECT * FROM user_profiles;
-   SELECT * FROM text_entries;
-   SELECT * FROM generated_audio;
-   SELECT * FROM voice_clones;
-   SELECT * FROM system_settings;
-   SELECT * FROM api_usage;
-   SELECT * FROM error_logs;
-   SELECT * FROM sessions;
-   SELECT * FROM usage_history;
-   SELECT * FROM user_feedback;
-   ```
+```sql
+SELECT * FROM users;
+SELECT * FROM user_profiles;
+SELECT * FROM text_entries;
+SELECT * FROM generated_audio;
+SELECT * FROM voice_clones;
+SELECT * FROM system_settings;
+SELECT * FROM api_usage;
+SELECT * FROM error_logs;
+SELECT * FROM sessions;
+SELECT * FROM usage_history;
+SELECT * FROM user_feedback;
+```
