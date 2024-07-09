@@ -8,7 +8,7 @@ from typing import List
 from database import get_db
 from models.user import User
 from schemas.user import UserCreate, UserUpdate, UserResponse
-from utils import hash_password
+from services.user_service import hash_password
 
 router = APIRouter()
 

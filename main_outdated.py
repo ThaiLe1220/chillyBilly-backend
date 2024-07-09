@@ -13,7 +13,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 import secrets
 import bcrypt
-from models_old import (
+from models_outdated import (
     engine,
     User,
     UserProfile,

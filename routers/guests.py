@@ -9,7 +9,8 @@ from schemas.user import UserCreate, UserResponse
 from datetime import datetime, timedelta
 from uuid import uuid4
 from services.guest_service import get_or_create_guest, cleanup_inactive_guests
-from services.user_service import create_user, transfer_guest_data_to_user
+
+# from services.user_service import create_user, transfer_guest_data_to_user
 
 router = APIRouter()
 
@@ -46,18 +47,18 @@ def update_guest_activity(guest_id: str, db: Session = Depends(get_db)):
     return guest
 
 
-@router.post("/guests/{guest_id}/convert", response_model=UserResponse)
-def convert_guest_to_user(
-    guest_id: str, user_data: UserCreate, db: Session = Depends(get_db)
-):
-    guest = db.query(Guest).filter(Guest.guest_id == guest_id).first()
-    if not guest:
-        raise HTTPException(status_code=404, detail="Guest not found")
+# @router.post("/guests/{guest_id}/convert", response_model=UserResponse)
+# def convert_guest_to_user(
+#     guest_id: str, user_data: UserCreate, db: Session = Depends(get_db)
+# ):
+#     guest = db.query(Guest).filter(Guest.guest_id == guest_id).first()
+#     if not guest:
+#         raise HTTPException(status_code=404, detail="Guest not found")
 
-    new_user = create_user(db, user_data)
-    transfer_guest_data_to_user(db, guest, new_user)
+#     new_user = create_user(db, user_data)
+#     transfer_guest_data_to_user(db, guest, new_user)
 
-    return new_user
+#     return new_user
 
 
 @router.delete("/guests/cleanup", status_code=204)
