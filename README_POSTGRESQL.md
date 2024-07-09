@@ -65,41 +65,46 @@ Certainly! Here's an updated README with instructions to test all features in th
 
 ### User Management
 
-1. Create users:
+1. Create users: ✅
 
    ```bash
-   curl -X POST "http://localhost:8000/users/" -H "Content-Type: application/json" -d '{"username":"testuser1", "email":"test1@example.com", "password":"password123"}'
+   curl -X POST "http://localhost:8000/users/" -H "Content-Type: application/json" -d '{"username":"testuser1", "email":"testuser1@example.com", "password":"testpassword1"}'
    curl -X POST "http://localhost:8000/users/" -H "Content-Type: application/json" -d '{"username":"testuser2", "email":"testuser2@com.com", "password":"testpassword2"}'
+   curl -X POST "http://localhost:8000/users/" -H "Content-Type: application/json" -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}'
    ```
 
-2. Get all users:
+2. Get all users: ✅
 
    ```bash
    curl "http://localhost:8000/users/"
    ```
 
-3. Update user information:
+3. Update user information: ✅
 
    ```bash
-   curl -X PUT "http://localhost:8000/users/1" -H "Content-Type: application/json" -d '{"email":"newemail@example.com"}'
+   curl -X PUT "http://localhost:8000/users/10" -H "Content-Type: application/json" -d '{"email":"eugene2000@gmail.com", "password":"thai2000"}'
    ```
 
-4. Delete a user:
+4. Delete a user: ✅
 
    ```bash
-   curl -X DELETE "http://localhost:8000/users/2"
+   curl -X DELETE "http://localhost:8000/users/9"
    ```
 
-5. Create a user profile:
+5. Create a user profile: ✅
 
    ```bash
-   curl -X POST "http://localhost:8000/users/1/profile/" -H "Content-Type: application/json" -d '{"first_name":"John", "last_name":"Doe", "date_of_birth":"1990-01-01T00:00:00", "preferred_language":"en"}'
+   curl -X POST "http://localhost:8000/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
+
+   curl "http://localhost:8000/users/10/profile/"
    ```
 
-6. Update user profile:
+6. Update user profile: ✅
 
    ```bash
-   curl -X PUT "http://localhost:8000/users/1/profile/" -H "Content-Type: application/json" -d '{"first_name":"Jane", "last_name":"Doe"}'
+   curl -X PUT "http://localhost:8000/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
+
+   curl "http://localhost:8000/users/10/profile/"
    ```
 
 ### Text Entries
@@ -107,7 +112,7 @@ Certainly! Here's an updated README with instructions to test all features in th
 7. Create a text entry:
 
    ```bash
-   curl -X POST "http://localhost:8000/users/1/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello, world!", "language":"en"}'
+   curl -X POST "http://localhost:8000/users/10/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello, world!", "language":"en"}'
    ```
 
 8. Get user's text entries:

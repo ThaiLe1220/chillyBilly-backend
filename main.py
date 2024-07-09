@@ -1,11 +1,16 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+""" FastAPI application for managing users, profiles, text entries, generated audio, voice clones,
+    user feedback, system settings, API usage, error logs, sessions, and usage history.
+"""
+
+from fastapi import FastAPI, HTTPException, Depends, Body, status
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime, timedelta
 import secrets
+import bcrypt
 from models import (
     engine,
     User,
@@ -21,11 +26,14 @@ from models import (
     SystemSetting,
 )
 
+# Initialize FastAPI application
 app = FastAPI()
 
+# Database session creation
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+# Dependency for database session
 def get_db():
     db = SessionLocal()
     try:
@@ -34,118 +42,270 @@ def get_db():
         db.close()
 
 
-# Pydantic models for request/response
+##########################
+# User Management Models # ✅
+##########################
 class UserCreate(BaseModel):
-    username: str
-    email: str
-    password: str
-
-
-class UserResponse(BaseModel):
-    id: int
-    username: str
-    email: str
+    username: str = Field(
+        ..., description="The user's chosen username", example="johndoe"
+    )
+    email: str = Field(
+        ..., description="The user's email address", example="johndoe@example.com"
+    )
+    password: str = Field(
+        ..., description="The user's password", example="SecurePassword123"
+    )
 
 
 class UserUpdate(BaseModel):
-    email: Optional[str]
-    password: Optional[str]
+    email: Optional[str] = Field(
+        None, description="The user's email address", example="user@example.com"
+    )
+    password: Optional[str] = Field(
+        None, description="The user's password", example="SecurePassword123"
+    )
 
 
+class UserResponse(BaseModel):
+    id: int = Field(..., description="The user's unique identifier", example=1)
+    username: str = Field(
+        ..., description="The user's chosen username", example="johndoe"
+    )
+    email: str = Field(
+        ..., description="The user's email address", example="johndoe@example.com"
+    )
+
+
+#############################
+# Profile Management Models # ✅
+#############################
 class UserProfileCreate(BaseModel):
-    first_name: str
-    last_name: str
-    date_of_birth: datetime
-    preferred_language: str
+    first_name: str = Field(..., description="The user's first name", example="John")
+    last_name: str = Field(..., description="The user's last name", example="Doe")
+    date_of_birth: datetime = Field(
+        ..., description="The user's date of birth", example="1990-01-01T00:00:00"
+    )
+    preferred_language: str = Field(
+        ..., description="The user's preferred language", example="en"
+    )
 
 
 class UserProfileResponse(BaseModel):
-    id: int
-    first_name: str
-    last_name: str
-    date_of_birth: datetime
-    preferred_language: str
+    first_name: Optional[str] = Field(
+        None, description="The user's first name", example="John"
+    )
+    last_name: Optional[str] = Field(
+        None, description="The user's last name", example="Doe"
+    )
+    date_of_birth: Optional[datetime] = Field(
+        None, description="The user's date of birth", example="1990-01-01T00:00:00"
+    )
+    preferred_language: Optional[str] = Field(
+        None, description="The user's preferred language", example="en"
+    )
 
 
 class UserProfileUpdate(BaseModel):
-    first_name: Optional[str]
-    last_name: Optional[str]
-    date_of_birth: Optional[datetime]
-    preferred_language: Optional[str]
+    first_name: Optional[str] = Field(
+        None, description="The user's first name", example="John"
+    )
+    last_name: Optional[str] = Field(
+        None, description="The user's last name", example="Doe"
+    )
+    date_of_birth: Optional[datetime] = Field(
+        None, description="The user's date of birth", example="1990-01-01"
+    )
+    preferred_language: Optional[str] = Field(
+        None, description="The user's preferred language", example="en"
+    )
 
 
+##################################
+# Text Entries Management Models #
+##################################
 class TextEntryCreate(BaseModel):
-    content: str
-    language: str
+    content: str = Field(
+        ..., description="The content of the text entry", example="Hello, world!"
+    )
+    language: str = Field(
+        ..., description="The language of the text entry", example="en"
+    )
 
 
 class TextEntryResponse(BaseModel):
-    id: int
-    content: str
-    language: str
-    created_at: datetime
+    id: int = Field(..., description="The text entry's unique identifier", example=1)
+    content: str = Field(
+        ..., description="The content of the text entry", example="Hello, world!"
+    )
+    language: str = Field(
+        ..., description="The language of the text entry", example="en"
+    )
+    created_at: datetime = Field(
+        ...,
+        description="The creation timestamp of the text entry",
+        example="2024-01-01T00:00:00",
+    )
 
 
+#####################################
+# Generated Audio Management Models #
+#####################################
 class GeneratedAudioCreate(BaseModel):
-    text_id: int
-    file_path: str
-    duration: float
+    text_id: int = Field(
+        ...,
+        description="The ID of the text entry this audio is generated from",
+        example=1,
+    )
+    file_path: str = Field(
+        ...,
+        description="The file path of the generated audio",
+        example="/audio/123.mp3",
+    )
+    duration: float = Field(
+        ..., description="The duration of the audio in seconds", example=5.5
+    )
 
 
 class GeneratedAudioResponse(BaseModel):
-    id: int
-    text_id: int
-    file_path: str
-    duration: float
-    created_at: datetime
+    id: int = Field(
+        ..., description="The generated audio's unique identifier", example=1
+    )
+    text_id: int = Field(
+        ...,
+        description="The ID of the text entry this audio is generated from",
+        example=1,
+    )
+    file_path: str = Field(
+        ...,
+        description="The file path of the generated audio",
+        example="/audio/123.mp3",
+    )
+    duration: float = Field(
+        ..., description="The duration of the audio in seconds", example=5.5
+    )
+    created_at: datetime = Field(
+        ...,
+        description="The creation timestamp of the generated audio",
+        example="2024-01-01T00:00:00",
+    )
 
 
+#################################
+# Voice Clone Management Models #
+#################################
 class VoiceCloneCreate(BaseModel):
-    original_file_path: str
+    original_file_path: str = Field(
+        ...,
+        description="The file path of the original audio file",
+        example="/audio/original.mp3",
+    )
 
 
 class VoiceCloneResponse(BaseModel):
-    id: int
-    original_file_path: str
-    processed_file_path: Optional[str]
-    status: str
-    created_at: datetime
+    id: int = Field(..., description="The voice clone's unique identifier", example=1)
+    original_file_path: str = Field(
+        ...,
+        description="The file path of the original audio file",
+        example="/audio/original.mp3",
+    )
+    processed_file_path: Optional[str] = Field(
+        None,
+        description="The file path of the processed voice clone",
+        example="/audio/clone.mp3",
+    )
+    status: str = Field(
+        ...,
+        description="The status of the voice clone processing",
+        example="processing",
+    )
+    created_at: datetime = Field(
+        ...,
+        description="The creation timestamp of the voice clone",
+        example="2024-01-01T00:00:00",
+    )
 
 
+###################################
+# User Feedback Management Models #
+###################################
 class UserFeedbackCreate(BaseModel):
-    audio_id: int
-    rating: int
-    comment: Optional[str]
+    audio_id: int = Field(
+        ..., description="The ID of the audio this feedback is related to", example=1
+    )
+    rating: int = Field(..., description="The user's rating for the audio", example=5)
+    comment: Optional[str] = Field(
+        None, description="Additional comments from the user", example="Great quality!"
+    )
 
 
 class UserFeedbackResponse(BaseModel):
-    id: int
-    audio_id: int
-    rating: int
-    comment: Optional[str]
-    created_at: datetime
+    id: int = Field(..., description="The feedback's unique identifier", example=1)
+    audio_id: int = Field(
+        ..., description="The ID of the audio this feedback is related to", example=1
+    )
+    rating: int = Field(..., description="The user's rating for the audio", example=5)
+    comment: Optional[str] = Field(
+        None, description="Additional comments from the user", example="Great quality!"
+    )
+    created_at: datetime = Field(
+        ...,
+        description="The creation timestamp of the feedback",
+        example="2024-01-01T00:00:00",
+    )
 
 
-# API endpoints
-"""
-User management (create, read, update, delete)
-User profile management (create, update)
-Text entries management (create, read, delete)
-Generated audio creation and retrieval
-Voice clone management (create, read, delete)
-User feedback management (create, read)
-System settings management (create, read, update)
-API usage logging and retrieval
-Error logging and retrieval
-Session management (create, read, delete)
-Usage history logging and retrieval
-"""
+#####################################
+# System Settings Management Models # (... to be updated ...)
+#####################################
+class SystemSettingCreate(BaseModel):
+    setting_key: str = Field(
+        ..., description="The key for the system setting", example="max_upload_size"
+    )
+    setting_value: str = Field(
+        ..., description="The value for the system setting", example="10485760"
+    )
 
 
+class SystemSettingResponse(BaseModel):
+    id: int = Field(..., description="The setting's unique identifier", example=1)
+    setting_key: str = Field(
+        ..., description="The key for the system setting", example="max_upload_size"
+    )
+    setting_value: str = Field(
+        ..., description="The value for the system setting", example="10485760"
+    )
+    last_updated: datetime = Field(
+        ...,
+        description="The timestamp of the last update",
+        example="2024-01-01T00:00:00",
+    )
+
+
+#####################
+# Utility functions #
+#####################
+
+
+# Password hashing and verification
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(
+        plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+    )
+
+
+#####################################
+# API endpoints for user management # ✅
+#####################################
 @app.post("/users/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = User(
-        username=user.username, email=user.email, password_hash=user.password
+        username=user.username,
+        email=user.email,
+        password_hash=hash_password(user.password),
     )
     try:
         db.add(db_user)
@@ -154,11 +314,17 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     except IntegrityError as e:
         db.rollback()
         if "username" in str(e.orig):
-            raise HTTPException(status_code=400, detail="Username already exists")
+            raise HTTPException(
+                status_code=400, detail="Username already exists"
+            ) from e
         elif "email" in str(e.orig):
-            raise HTTPException(status_code=400, detail="Email already registered")
+            raise HTTPException(
+                status_code=400, detail="Email already registered"
+            ) from e
         else:
-            raise HTTPException(status_code=400, detail="An integrity error occurred")
+            raise HTTPException(
+                status_code=400, detail="An integrity error occurred"
+            ) from e
     return db_user
 
 
@@ -168,12 +334,13 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if user_update.email:
-        db_user.email = user_update.email
-    if user_update.password:
-        db_user.password_hash = (
-            user_update.password
-        )  # In production, hash this password
+    update_data = user_update.dict(exclude_unset=True)
+
+    if "email" in update_data:
+        db_user.email = update_data["email"]
+
+    if "password" in update_data:
+        db_user.password_hash = hash_password(update_data["password"])
 
     db.commit()
     db.refresh(db_user)
@@ -185,8 +352,15 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    db.delete(db_user)
-    db.commit()
+    try:
+        db.delete(db_user)
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, detail="Unable to delete user due to existing references"
+        ) from e
+
     return {"ok": True}
 
 
@@ -196,14 +370,37 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return users
 
 
+#############################################
+# API endpoints for user profile management #
+############################################# ✅
 @app.post("/users/{user_id}/profile/", response_model=UserProfileResponse)
 def create_user_profile(
     user_id: int, profile: UserProfileCreate, db: Session = Depends(get_db)
 ):
+    # Check if the user exists
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if the user already has a profile
+    existing_profile = (
+        db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+    )
+    if existing_profile:
+        raise HTTPException(status_code=400, detail="User already has a profile")
+
     db_profile = UserProfile(**profile.dict(), user_id=user_id)
     db.add(db_profile)
     db.commit()
     db.refresh(db_profile)
+    return db_profile
+
+
+@app.get("/users/{user_id}/profile/", response_model=UserProfileResponse)
+def get_user_profile(user_id: int, db: Session = Depends(get_db)):
+    db_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+    if not db_profile:
+        raise HTTPException(status_code=404, detail="User profile not found")
     return db_profile
 
 
@@ -215,12 +412,33 @@ def update_user_profile(
     if not db_profile:
         raise HTTPException(status_code=404, detail="User profile not found")
 
-    for key, value in profile_update.dict(exclude_unset=True).items():
+    update_data = profile_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
         setattr(db_profile, key, value)
 
     db.commit()
     db.refresh(db_profile)
     return db_profile
+
+
+#############################################
+# API endpoints for text entries management #
+#############################################
+@app.post("/users/{user_id}/text_entries/", response_model=TextEntryResponse)
+def create_text_entry(
+    user_id: int, text_entry: TextEntryCreate, db: Session = Depends(get_db)
+):
+    db_text_entry = TextEntry(**text_entry.dict(), user_id=user_id)
+    db.add(db_text_entry)
+    db.commit()
+    db.refresh(db_text_entry)
+    return db_text_entry
+
+
+@app.get("/users/{user_id}/text_entries/", response_model=List[TextEntryResponse])
+def read_user_text_entries(user_id: int, db: Session = Depends(get_db)):
+    text_entries = db.query(TextEntry).filter(TextEntry.user_id == user_id).all()
+    return text_entries
 
 
 @app.delete(
@@ -239,23 +457,9 @@ def delete_text_entry(user_id: int, text_id: int, db: Session = Depends(get_db))
     return {"ok": True}
 
 
-@app.post("/users/{user_id}/text_entries/", response_model=TextEntryResponse)
-def create_text_entry(
-    user_id: int, text_entry: TextEntryCreate, db: Session = Depends(get_db)
-):
-    db_text_entry = TextEntry(**text_entry.dict(), user_id=user_id)
-    db.add(db_text_entry)
-    db.commit()
-    db.refresh(db_text_entry)
-    return db_text_entry
-
-
-@app.get("/users/{user_id}/text_entries/", response_model=List[TextEntryResponse])
-def read_user_text_entries(user_id: int, db: Session = Depends(get_db)):
-    text_entries = db.query(TextEntry).filter(TextEntry.user_id == user_id).all()
-    return text_entries
-
-
+################################################
+# API endpoints for generated audio management #
+################################################
 @app.post("/generated_audio/", response_model=GeneratedAudioResponse)
 def create_generated_audio(audio: GeneratedAudioCreate, db: Session = Depends(get_db)):
     db_audio = GeneratedAudio(**audio.dict())
@@ -273,6 +477,9 @@ def get_generated_audio(audio_id: int, db: Session = Depends(get_db)):
     return db_audio
 
 
+############################################
+# API endpoints for voice clone management #
+############################################
 @app.post("/users/{user_id}/voice_clones/", response_model=VoiceCloneResponse)
 def create_voice_clone(
     user_id: int, voice_clone: VoiceCloneCreate, db: Session = Depends(get_db)
@@ -308,6 +515,9 @@ def delete_voice_clone(user_id: int, clone_id: int, db: Session = Depends(get_db
     return {"ok": True}
 
 
+##############################################
+# API endpoints for user feedback management #
+##############################################
 @app.post("/users/{user_id}/feedback/", response_model=UserFeedbackResponse)
 def create_user_feedback(
     user_id: int, feedback: UserFeedbackCreate, db: Session = Depends(get_db)
@@ -325,6 +535,9 @@ def get_user_feedback(user_id: int, db: Session = Depends(get_db)):
     return feedback
 
 
+################################################
+# API endpoints for system settings management #
+################################################
 @app.get("/system_settings/{setting_key}")
 def get_system_setting(setting_key: str, db: Session = Depends(get_db)):
     setting = (
@@ -357,7 +570,9 @@ def update_system_setting(setting_key: str, value: str, db: Session = Depends(ge
     return {"key": setting.setting_key, "value": setting.setting_value}
 
 
-# New endpoints for API usage, error logs, sessions, and usage history
+####################################################################
+# Endpoints for API usage, error logs, sessions, and usage history #
+####################################################################
 @app.post("/api_usage/")
 def log_api_usage(user_id: int, endpoint: str, db: Session = Depends(get_db)):
     usage = APIUsage(user_id=user_id, endpoint=endpoint)
@@ -441,6 +656,9 @@ def get_usage_history(user_id: int, db: Session = Depends(get_db)):
     return history
 
 
+###########################################
+# Main entry point to run the application #
+###########################################
 if __name__ == "__main__":
     import uvicorn
 

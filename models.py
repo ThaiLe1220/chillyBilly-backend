@@ -28,11 +28,39 @@ class User(Base):
     last_login = Column(DateTime)
     last_active_date = Column(DateTime)
 
+    profile = relationship(
+        "UserProfile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    text_entries = relationship(
+        "TextEntry", back_populates="user", cascade="all, delete-orphan"
+    )
+    generated_audio = relationship(
+        "GeneratedAudio", back_populates="user", cascade="all, delete-orphan"
+    )
+    voice_clones = relationship(
+        "VoiceClone", back_populates="user", cascade="all, delete-orphan"
+    )
+    sessions = relationship(
+        "Session", back_populates="user", cascade="all, delete-orphan"
+    )
+    usage_history = relationship(
+        "UsageHistory", back_populates="user", cascade="all, delete-orphan"
+    )
+    api_usage = relationship(
+        "APIUsage", back_populates="user", cascade="all, delete-orphan"
+    )
+    user_feedback = relationship(
+        "UserFeedback", back_populates="user", cascade="all, delete-orphan"
+    )
+
 
 class UserProfile(Base):
     __tablename__ = "user_profiles"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True)
     first_name = Column(String)
     last_name = Column(String)
     date_of_birth = Column(DateTime)
@@ -41,54 +69,52 @@ class UserProfile(Base):
     user = relationship("User", back_populates="profile")
 
 
-User.profile = relationship("UserProfile", uselist=False, back_populates="user")
-
-
 class Session(Base):
     __tablename__ = "sessions"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     token = Column(String, unique=True, nullable=False)
     start_time = Column(DateTime, default=datetime.utcnow)
     expiry_time = Column(DateTime, nullable=False)
     last_activity = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship("User")
+    user = relationship("User", back_populates="sessions")
 
 
 class TextEntry(Base):
     __tablename__ = "text_entries"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     content = Column(Text, nullable=False)
     language = Column(Enum("vi", "en", name="language_enum"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="text_entries")
-
-
-User.text_entries = relationship(
-    "TextEntry", order_by=TextEntry.id, back_populates="user"
-)
+    generated_audio = relationship(
+        "GeneratedAudio", back_populates="text_entry", cascade="all, delete-orphan"
+    )
 
 
 class GeneratedAudio(Base):
     __tablename__ = "generated_audio"
     id = Column(Integer, primary_key=True)
-    text_id = Column(Integer, ForeignKey("text_entries.id"))
-    user_id = Column(Integer, ForeignKey("users.id"))
+    text_id = Column(Integer, ForeignKey("text_entries.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     file_path = Column(String, nullable=False)
     duration = Column(Float)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    text_entry = relationship("TextEntry")
-    user = relationship("User")
+    text_entry = relationship("TextEntry", back_populates="generated_audio")
+    user = relationship("User", back_populates="generated_audio")
+    user_feedback = relationship(
+        "UserFeedback", back_populates="audio", cascade="all, delete-orphan"
+    )
 
 
 class VoiceClone(Base):
     __tablename__ = "voice_clones"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     original_file_path = Column(String, nullable=False)
     processed_file_path = Column(String)
     status = Column(
@@ -96,13 +122,13 @@ class VoiceClone(Base):
     )
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship("User")
+    user = relationship("User", back_populates="voice_clones")
 
 
 class UsageHistory(Base):
     __tablename__ = "usage_history"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     action_type = Column(
         Enum("text_entry", "audio_generation", "voice_upload", name="action_type_enum"),
         nullable=False,
@@ -110,7 +136,7 @@ class UsageHistory(Base):
     related_id = Column(Integer)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship("User")
+    user = relationship("User", back_populates="usage_history")
 
 
 class ErrorLog(Base):
@@ -125,26 +151,26 @@ class ErrorLog(Base):
 class APIUsage(Base):
     __tablename__ = "api_usage"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     endpoint = Column(String, nullable=False)
     request_count = Column(Integer, default=0)
     last_request = Column(DateTime, default=datetime.utcnow)
     daily_limit = Column(Integer)
 
-    user = relationship("User")
+    user = relationship("User", back_populates="api_usage")
 
 
 class UserFeedback(Base):
     __tablename__ = "user_feedback"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    audio_id = Column(Integer, ForeignKey("generated_audio.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    audio_id = Column(Integer, ForeignKey("generated_audio.id", ondelete="CASCADE"))
     rating = Column(Integer)
     comment = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship("User")
-    audio = relationship("GeneratedAudio")
+    user = relationship("User", back_populates="user_feedback")
+    audio = relationship("GeneratedAudio", back_populates="user_feedback")
 
 
 class SystemSetting(Base):

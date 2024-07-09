@@ -2,3 +2,9 @@ flask
 flask_sqlalchemy
 flask_login
 requests
+bcrypt
+uvicorn
+fastapi
+sqlalchemy
+pydantic
+psycopg2-binary
