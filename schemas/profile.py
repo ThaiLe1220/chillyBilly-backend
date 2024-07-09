@@ -1,4 +1,4 @@
-"""Filename: ./schemas/profile.py"""
+""" ./schemas/profile.py"""
 
 from pydantic import BaseModel, Field
 from typing import Optional

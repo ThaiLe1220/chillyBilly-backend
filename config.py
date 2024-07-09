@@ -1,4 +1,4 @@
-"""Filename: ./config.py"""
+""" ./config.py"""
 
 import os
 from pydantic import BaseSettings

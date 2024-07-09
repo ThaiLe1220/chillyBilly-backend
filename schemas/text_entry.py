@@ -1,4 +1,4 @@
-"""Filename: ./schemas/text_entry.py"""
+""" ./schemas/text_entry.py"""
 
 from pydantic import BaseModel, Field
 from datetime import datetime

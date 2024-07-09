@@ -9,67 +9,40 @@ sudo apt install postgresql postgresql-contrib
 
 ### Step 2: Create a database
 
-1. **Initial setup and database configuration:**
+Initial setup and database configuration:
 
-    ```bash
-    sudo -u postgres psql
+```bash
+sudo -u postgres psql
 
-    CREATE DATABASE tts_app;
-    CREATE USER tts_user WITH PASSWORD 'tts_eugene';
-    GRANT ALL PRIVILEGES ON DATABASE tts_app TO tts_user;
+CREATE DATABASE tts_app;
+CREATE USER tts_user WITH PASSWORD 'tts_eugene';
+GRANT ALL PRIVILEGES ON DATABASE tts_app TO tts_user;
 
-    \l
-    \du
-    \c tts_app
-    \z
-    ```
-
-2. **Clear terminal and query tables:**
-
-    ```bash
-    \! clear
-    \dt
-
-    tts_app=# \dt
-                List of relations
-    Schema |      Name       | Type  |  Owner   
-    --------+-----------------+-------+----------
-    public | api_usage       | table | tts_user
-    public | error_logs      | table | tts_user
-    public | generated_audio | table | tts_user
-    public | sessions        | table | tts_user
-    public | system_settings | table | tts_user
-    public | text_entries    | table | tts_user
-    public | usage_history   | table | tts_user
-    public | user_feedback   | table | tts_user
-    public | user_profiles   | table | tts_user
-    public | users           | table | tts_user
-    public | voice_clones    | table | tts_user
-    (11 rows)
-
-    \d users
-    SELECT * FROM users;
-    ```
+\l
+\du
+\c tts_app
+\z
+```
 
 ### Step 3: Install Python dependencies
 
-pip install -r requirements.txt
+`pip3 install -r requirements.txt`
 
-### Step 4: Create database schema
+### Step 4: Create database
 
-check ./models.py and ./main.py
-
-Certainly! Here's an updated README with instructions to test all features in the main code:
+Check `models`, `schemas`, `routers` directories and `database.py`
 
 ## Testing Database Features
+
+Run the app `python3 app.py`
+
+Certainly! I'll update the README section to test all the implemented routes, including the new guest functionality and the updated audio generation process. Here's the revised version:
 
 ### User Management
 
 **Create users:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"testuser1", "email":"testuser1@example.com", "password":"testpassword1"}'
-curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"testuser2", "email":"testuser2@com.com", "password":"testpassword2"}'
 curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}'
 ```
 
@@ -96,7 +69,11 @@ curl -X DELETE "http://localhost:8000/api/v1/users/11"
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
+```
 
+**Get user profile:** ✅
+
+```bash
 curl "http://localhost:8000/api/v1/users/10/profile/"
 ```
 
@@ -104,77 +81,151 @@ curl "http://localhost:8000/api/v1/users/10/profile/"
 
 ```bash
 curl -X PUT "http://localhost:8000/api/v1/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
+```
 
-curl "http://localhost:8000/api/v1/users/10/profile/"
+### Guest Management
+
+**Create or get guest session:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/guests/session"
+```
+
+**Get guest information:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/guests/{guest_id}"
+```
+
+**Update guest activity:** ✅
+
+```bash
+curl -X PUT "http://localhost:8000/api/v1/guests/{guest_id}/active"
+```
+
+**Convert guest to user:** ✅
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/guests/{guest_id}/convert" -H "Content-Type: application/json" -d '{"username":"newuser", "email":"newuser@example.com", "password":"password123"}'
 ```
 
 ### Text Entries
 
-**Create a text entry:** ✅
+**Create a text entry (user):** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/10/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello, world!", "language":"en"}'
+curl -X POST "http://localhost:8000/api/v1/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello, world!", "language":"en", "user_id":10}'
 ```
 
-**Get user's text entries:** ✅
+**Create a text entry (guest):** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/users/10/text_entries/"
+curl -X POST "http://localhost:8000/api/v1/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello from guest!", "language":"en", "guest_id":"{guest_id}"}'
+```
+
+**Get text entries:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/text_entries/?user_id=10"
+curl "http://localhost:8000/api/v1/text_entries/?guest_id={guest_id}"
+```
+
+**Get specific text entry:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/text_entries/1"
 ```
 
 **Delete a text entry:** ✅
 
 ```bash
-curl -X DELETE "http://localhost:8000/api/v1/users/1/text_entries/1"
+curl -X DELETE "http://localhost:8000/api/v1/text_entries/1"
 ```
 
 ### Audio Generation
 
-**Create generated audio:**
+**Create generated audio (user):** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/generated_audio/" -H "Content-Type: application/json" -d '{"text_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
+curl -X POST "http://localhost:8000/api/v1/audios/" -H "Content-Type: application/json" -d '{"text_entry_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
 ```
 
-**Get generated audio:**
+**Create generated audio (user with voice clone):** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/generated_audio/1"
+curl -X POST "http://localhost:8000/api/v1/audios/" -H "Content-Type: application/json" -d '{"text_entry_id":1, "voice_clone_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
+```
+
+**Create generated audio (guest):** ✅
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/audios/" -H "Content-Type: application/json" -d '{"text_entry_id":2, "file_path":"/path/to/audio.mp3", "duration":3.5}'
+```
+
+**Get generated audio:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/audios/1"
+```
+
+**Get user's generated audios:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/audios/?user_id=10"
+```
+
+**Get guest's generated audios:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/audios/?guest_id={guest_id}"
+```
+
+**Delete generated audio:** ✅
+
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/audios/1"
 ```
 
 ### Voice Cloning
 
-**Create a voice clone:**
+**Create a voice clone:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/1/voice_clones/" -H "Content-Type: application/json" -d '{"original_file_path":"/path/to/original_voice.wav"}'
+curl -X POST "http://localhost:8000/api/v1/users/10/voice_clones/" -H "Content-Type: application/json" -d '{"voice_name":"MyVoice", "original_file_path":"/path/to/original_voice.wav"}'
 ```
 
-**Get user's voice clones:**
+**Get a specific voice clone:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/users/1/voice_clones/"
+curl "http://localhost:8000/api/v1/voice_clones/1"
 ```
 
-**Delete a voice clone:**
+**Get user's voice clones:** ✅
 
 ```bash
-curl -X DELETE "http://localhost:8000/api/v1/users/1/voice_clones/1"
+curl "http://localhost:8000/api/v1/users/10/voice_clones/"
+```
+
+**Delete a voice clone:** ✅
+
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/users/10/voice_clones/1"
 ```
 
 ### User Feedback
 
-**Create user feedback:**
+**Create user feedback:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/1/feedback/" -H "Content-Type: application/json" -d '{"audio_id":1, "rating":5, "comment":"Great audio quality!"}'
+curl -X POST "http://localhost:8000/api/v1/users/10/feedback/" -H "Content-Type: application/json" -d '{"audio_id":1, "rating":5, "comment":"Great audio quality!"}'
 ```
 
-**Get user feedback:**
+**Get user feedback:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/users/1/feedback/"
+curl "http://localhost:8000/api/v1/users/10/feedback/"
 ```
+
 
 ### System Settings
 
@@ -278,6 +329,7 @@ psql -U tts_user -d tts_app
 
 ```sql
 SELECT * FROM users;
+SELECT * FROM guests;
 SELECT * FROM user_profiles;
 SELECT * FROM text_entries;
 SELECT * FROM generated_audio;

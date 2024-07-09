@@ -1,6 +1,6 @@
-"""Filename: ./models/user.py"""
+""" ./models/user.py"""
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -27,21 +27,26 @@ class User(Base):
     text_entries = relationship(
         "TextEntry", back_populates="user", cascade="all, delete-orphan"
     )
-    # generated_audio = relationship(
-    #     "GeneratedAudio", back_populates="user", cascade="all, delete-orphan"
-    # )
-    # voice_clones = relationship(
-    #     "VoiceClone", back_populates="user", cascade="all, delete-orphan"
-    # )
-    # sessions = relationship(
-    #     "Session", back_populates="user", cascade="all, delete-orphan"
-    # )
-    # usage_history = relationship(
-    #     "UsageHistory", back_populates="user", cascade="all, delete-orphan"
-    # )
-    # api_usage = relationship(
-    #     "APIUsage", back_populates="user", cascade="all, delete-orphan"
-    # )
-    # user_feedback = relationship(
-    #     "UserFeedback", back_populates="user", cascade="all, delete-orphan"
-    # )
+    generated_audio = relationship(
+        "GeneratedAudio", back_populates="user", cascade="all, delete-orphan"
+    )
+    voice_clones = relationship(
+        "VoiceClone", back_populates="user", cascade="all, delete-orphan"
+    )
+    user_feedback = relationship(
+        "UserFeedback", back_populates="user", cascade="all, delete-orphan"
+    )
+    sessions = relationship(
+        "Session", back_populates="user", cascade="all, delete-orphan"
+    )
+    usage_history = relationship(
+        "UsageHistory", back_populates="user", cascade="all, delete-orphan"
+    )
+    api_usage = relationship(
+        "APIUsage", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("username", name="uq_username"),
+        UniqueConstraint("email", name="uq_email"),
+    )

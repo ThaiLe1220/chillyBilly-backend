@@ -1,4 +1,6 @@
-""" FastAPI application for managing users, profiles, text entries, generated audio, voice clones,
+""" ./main.py
+    
+    FastAPI application for managing users, profiles, text entries, generated audio, voice clones,
     user feedback, system settings, API usage, error logs, sessions, and usage history.
 """
 
