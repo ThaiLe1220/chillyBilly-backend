@@ -5,6 +5,10 @@ from typing import Optional
 from datetime import datetime
 
 
+class PasswordVerification(BaseModel):
+    password: str
+
+
 class UserCreate(BaseModel):
     username: str = Field(
         ..., description="The user's chosen username", example="johndoe"
@@ -18,6 +22,9 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
+    username: Optional[str] = Field(
+        None, description="The user's new username", example="newusername"
+    )
     email: Optional[EmailStr] = Field(
         None, description="The user's email address", example="user@example.com"
     )
@@ -37,9 +44,18 @@ class UserResponse(BaseModel):
     email: EmailStr = Field(
         ..., description="The user's email address", example="johndoe@example.com"
     )
-    created_at: datetime
-    last_login: Optional[datetime]
-    last_active_date: Optional[datetime]
+    two_factor_enabled: bool = Field(
+        ..., description="Whether two-factor authentication is enabled"
+    )
+    created_at: datetime = Field(
+        ..., description="The date and time when the user was created"
+    )
+    last_login: Optional[datetime] = Field(
+        None, description="The last login time of the user"
+    )
+    last_active_date: Optional[datetime] = Field(
+        None, description="The last active date of the user"
+    )
 
     class Config:
         from_attributes = True

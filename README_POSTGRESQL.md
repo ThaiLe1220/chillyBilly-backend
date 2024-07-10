@@ -44,43 +44,54 @@ Certainly! I'll update the README section to test all the implemented routes, in
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}'
+curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove"}'
 ```
 
 **Get all users:** ✅
 
 ```bash
 curl "http://localhost:8000/api/v1/users/"
-curl "http://localhost:8000/api/v1/users/10"
+curl "http://localhost:8000/api/v1/users/1"
 ```
 
 **Update user information:** ✅
 
 ```bash
-curl -X PUT "http://localhost:8000/api/v1/users/10" -H "Content-Type: application/json" -d '{"email":"eugene2000@gmail.com", "password":"thai2000"}'
+curl -X PUT "http://localhost:8000/api/v1/users/3" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"eu", "email":"eu@ex.com", "password":"eu123"}'
+```
+
+**Verify user password:** ✅
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/users/3/verify_password" \
+     -H "Content-Type: application/json" \
+     -d '{"password":"eu123"}'
 ```
 
 **Delete a user:** ✅
 
 ```bash
-curl -X DELETE "http://localhost:8000/api/v1/users/11"
+curl -X DELETE "http://localhost:8000/api/v1/users/2"
 ```
 
 **Create a user profile:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
+curl -X POST "http://localhost:8000/api/v1/users/3/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
 ```
 
 **Get user profile:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/users/10/profile/"
+curl "http://localhost:8000/api/v1/users/3/profile/"
 ```
 
 **Update user profile:** ✅
 
 ```bash
-curl -X PUT "http://localhost:8000/api/v1/users/10/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
+curl -X PUT "http://localhost:8000/api/v1/users/3/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
 ```
 
 ### Guest Management
@@ -325,19 +336,28 @@ psql -U tts_user -d tts_app
 \dt
 ```
 
+
+
 **View contents of specific tables:**
 
 ```sql
 SELECT * FROM users;
 SELECT * FROM guests;
 SELECT * FROM user_profiles;
-SELECT * FROM text_entries;
 SELECT * FROM generated_audio;
+SELECT * FROM text_entries;
 SELECT * FROM voice_clones;
+SELECT * FROM user_feedback;
+
 SELECT * FROM system_settings;
 SELECT * FROM api_usage;
 SELECT * FROM error_logs;
 SELECT * FROM sessions;
 SELECT * FROM usage_history;
-SELECT * FROM user_feedback;
+```
+
+**Other SQL query to interact with the tables:**
+
+```sql
+DELETE FROM users WHERE id = 1;
 ```

@@ -1,14 +1,15 @@
 """ ./routers/users.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 from typing import List
 
-from database import get_db
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from fastapi import APIRouter, Depends, HTTPException, status, Response
+from services.user_service import hash_password, verify_password
+from schemas.user import UserCreate, UserUpdate, UserResponse, PasswordVerification
 from models.user import User
-from schemas.user import UserCreate, UserUpdate, UserResponse
-from services.user_service import hash_password
+
+from database import get_db
 
 router = APIRouter()
 
@@ -21,6 +22,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         username=user.username,
         email=user.email,
         password_hash=hash_password(user.password),
+        two_factor_enabled=False,
     )
     try:
         db.add(db_user)
@@ -40,7 +42,33 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
             raise HTTPException(
                 status_code=400, detail="An integrity error occurred"
             ) from e
-    return db_user
+
+    # return db_user
+    return UserResponse(
+        id=db_user.id,
+        username=db_user.username,
+        email=db_user.email,
+        two_factor_enabled=db_user.two_factor_enabled,
+        created_at=db_user.created_at,
+        last_login=db_user.last_login,
+        last_active_date=db_user.last_active_date,
+    )
+
+
+@router.post("/users/{user_id}/verify_password", status_code=status.HTTP_200_OK)
+def verify_user_password(
+    user_id: int,
+    password_verification: PasswordVerification,
+    db: Session = Depends(get_db),
+):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if verify_password(password_verification.password, db_user.password_hash):
+        return {"message": "Password is correct"}
+    else:
+        raise HTTPException(status_code=400, detail="Incorrect password")
 
 
 @router.put("/users/{user_id}", response_model=UserResponse)
@@ -51,15 +79,38 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get
 
     update_data = user_update.dict(exclude_unset=True)
 
+    if "username" in update_data:
+        existing_user = (
+            db.query(User).filter(User.username == update_data["username"]).first()
+        )
+        if existing_user and existing_user.id != user_id:
+            raise HTTPException(status_code=400, detail="Username already exists")
+        db_user.username = update_data["username"]
+
     if "email" in update_data:
         db_user.email = update_data["email"]
 
     if "password" in update_data:
         db_user.password_hash = hash_password(update_data["password"])
 
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    try:
+        db.commit()
+        db.refresh(db_user)
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, detail="An integrity error occurred"
+        ) from e
+
+    return UserResponse(
+        id=db_user.id,
+        username=db_user.username,
+        email=db_user.email,
+        two_factor_enabled=db_user.two_factor_enabled,
+        created_at=db_user.created_at,
+        last_login=db_user.last_login,
+        last_active_date=db_user.last_active_date,
+    )
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -76,13 +127,24 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
             status_code=400, detail="Unable to delete user due to existing references"
         ) from e
 
-    return {"ok": True}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/users/", response_model=List[UserResponse])
 def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    users = db.query(User).offset(skip).limit(limit).all()
-    return users
+    db_users = db.query(User).offset(skip).limit(limit).all()
+    return [
+        UserResponse(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            two_factor_enabled=user.two_factor_enabled,
+            created_at=user.created_at,
+            last_login=user.last_login,
+            last_active_date=user.last_active_date,
+        )
+        for user in db_users
+    ]
 
 
 @router.get("/users/{user_id}", response_model=UserResponse)
@@ -90,4 +152,12 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+    return UserResponse(
+        id=db_user.id,
+        username=db_user.username,
+        email=db_user.email,
+        two_factor_enabled=db_user.two_factor_enabled,
+        created_at=db_user.created_at,
+        last_login=db_user.last_login,
+        last_active_date=db_user.last_active_date,
+    )

@@ -17,6 +17,12 @@ class UserProfileCreate(BaseModel):
 
 
 class UserProfileResponse(BaseModel):
+    id: int = Field(
+        ..., description="The unique identifier for the user profile", example=1
+    )
+    user_id: int = Field(
+        ..., description="The unique identifier for the associated user", example=1
+    )
     first_name: Optional[str] = Field(
         None, description="The user's first name", example="John"
     )

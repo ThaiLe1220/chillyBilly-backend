@@ -15,8 +15,8 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     two_factor_enabled = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    last_login = Column(DateTime)
-    last_active_date = Column(DateTime)
+    last_login = Column(DateTime, nullable=True)
+    last_active_date = Column(DateTime, nullable=True)
 
     profile = relationship(
         "UserProfile",
@@ -36,15 +36,15 @@ class User(Base):
     user_feedback = relationship(
         "UserFeedback", back_populates="user", cascade="all, delete-orphan"
     )
-    sessions = relationship(
-        "Session", back_populates="user", cascade="all, delete-orphan"
-    )
-    usage_history = relationship(
-        "UsageHistory", back_populates="user", cascade="all, delete-orphan"
-    )
-    api_usage = relationship(
-        "APIUsage", back_populates="user", cascade="all, delete-orphan"
-    )
+    # sessions = relationship(
+    #     "Session", back_populates="user", cascade="all, delete-orphan"
+    # )
+    # usage_history = relationship(
+    #     "UsageHistory", back_populates="user", cascade="all, delete-orphan"
+    # )
+    # api_usage = relationship(
+    #     "APIUsage", back_populates="user", cascade="all, delete-orphan"
+    # )
 
     __table_args__ = (
         UniqueConstraint("username", name="uq_username"),
