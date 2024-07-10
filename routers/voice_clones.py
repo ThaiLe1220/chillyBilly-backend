@@ -1,6 +1,6 @@
 """ ./routers/voice_clones.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
@@ -67,4 +67,4 @@ def delete_voice_clone(user_id: int, voice_id: int, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Voice clone not found")
     db.delete(db_voice_clone)
     db.commit()
-    return {"ok": True}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

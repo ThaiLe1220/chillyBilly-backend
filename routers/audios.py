@@ -1,12 +1,15 @@
 """ ./routers/audios.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from typing import List
-from database import get_db
-from models import GeneratedAudio, TextEntry, VoiceClone
+from sqlalchemy.orm import Session
+
+from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException, status, Response
+
 from schemas.audio import GeneratedAudioCreate, GeneratedAudioResponse
 from services.guest_service import get_or_create_guest
+from models import GeneratedAudio, TextEntry, VoiceClone
+from database import get_db
 
 router = APIRouter()
 
@@ -75,11 +78,14 @@ def read_audios(
     return audios
 
 
-@router.delete("/audios/{audio_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/audios/{audio_id}")
 def delete_audio(audio_id: int, db: Session = Depends(get_db)):
     db_audio = db.query(GeneratedAudio).filter(GeneratedAudio.id == audio_id).first()
     if db_audio is None:
         raise HTTPException(status_code=404, detail="Audio not found")
     db.delete(db_audio)
     db.commit()
-    return {"ok": True}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "Audio deleted successfully", "deleted_id": audio_id},
+    )

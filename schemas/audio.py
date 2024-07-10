@@ -1,6 +1,6 @@
 """ ./schemas/audio.py"""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from typing import Optional
 
@@ -12,6 +12,12 @@ class GeneratedAudioCreate(BaseModel):
     )
     file_path: str = Field(..., description="The path to the generated audio file")
     duration: float = Field(..., description="The duration of the audio in seconds")
+
+    @validator("duration")
+    def duration_must_be_positive(cls, v):
+        if v <= 0:
+            raise ValueError("Duration must be positive")
+        return v
 
 
 class GeneratedAudioResponse(BaseModel):

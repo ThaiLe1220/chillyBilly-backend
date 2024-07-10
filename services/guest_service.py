@@ -16,8 +16,12 @@ def get_or_create_guest(db: Session, guest_id: str = None):
 
     # Create new guest if not found or expired
     new_guest_id = guest_id or str(uuid4())
-    guest = Guest(guest_id=new_guest_id)
-    guest.update_activity()
+    guest = Guest(
+        guest_id=new_guest_id,
+        created_at=datetime.utcnow(),  # Explicitly set created_at
+        last_active_date=datetime.utcnow(),  # Explicitly set last_active_date
+    )
+    guest.update_activity()  # This will set the expiration_date
     db.add(guest)
     db.commit()
     db.refresh(guest)

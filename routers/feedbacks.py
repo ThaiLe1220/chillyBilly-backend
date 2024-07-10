@@ -1,15 +1,18 @@
 """ ./routers/feedbacks.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from typing import List
-from database import get_db
+from sqlalchemy.orm import Session
+
+from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from models import UserFeedback, User, GeneratedAudio
 from schemas.feedback import (
     UserFeedbackCreate,
     UserFeedbackUpdate,
     UserFeedbackResponse,
 )
+from database import get_db
+
 
 router = APIRouter()
 
@@ -104,9 +107,7 @@ def read_audio_feedbacks(
     return feedbacks
 
 
-@router.delete(
-    "/users/{user_id}/feedbacks/{audio_id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/users/{user_id}/feedbacks/{audio_id}")
 def delete_feedback(user_id: int, audio_id: int, db: Session = Depends(get_db)):
     db_feedback = (
         db.query(UserFeedback)
@@ -117,4 +118,11 @@ def delete_feedback(user_id: int, audio_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Feedback not found")
     db.delete(db_feedback)
     db.commit()
-    return {"ok": True}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "message": "Feedback deleted successfully",
+            "deleted_user_id": user_id,
+            "deleted_audio_id": audio_id,
+        },
+    )

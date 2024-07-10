@@ -2,6 +2,7 @@
 
 from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Optional
 
 
 class TextEntryCreate(BaseModel):
@@ -11,6 +12,8 @@ class TextEntryCreate(BaseModel):
     language: str = Field(
         ..., description="The language of the text entry", example="en"
     )
+    user_id: Optional[int] = Field(None, description="The user's ID if applicable")
+    guest_id: Optional[int] = Field(None, description="The guest's ID if applicable")
 
 
 class TextEntryResponse(BaseModel):

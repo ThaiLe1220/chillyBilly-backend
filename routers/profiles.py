@@ -1,13 +1,12 @@
 """ ./routers/profiles.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from typing import List
-
-from database import get_db
+from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, status, Response
+from schemas.profile import UserProfileCreate, UserProfileUpdate, UserProfileResponse
 from models.profile import UserProfile
 from models.user import User
-from schemas.profile import UserProfileCreate, UserProfileUpdate, UserProfileResponse
+from database import get_db
 
 router = APIRouter()
 

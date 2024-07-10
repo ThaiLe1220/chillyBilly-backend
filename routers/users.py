@@ -1,14 +1,13 @@
 """ ./routers/users.py"""
 
 from typing import List
-
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from fastapi.responses import JSONResponse
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from services.user_service import hash_password, verify_password
 from schemas.user import UserCreate, UserUpdate, UserResponse, PasswordVerification
 from models.user import User
-
 from database import get_db
 
 router = APIRouter()
@@ -113,7 +112,7 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get
     )
 
 
-@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/users/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
@@ -121,13 +120,15 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     try:
         db.delete(db_user)
         db.commit()
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "User deleted successfully", "deleted_id": user_id},
+        )
     except IntegrityError as e:
         db.rollback()
         raise HTTPException(
             status_code=400, detail="Unable to delete user due to existing references"
         ) from e
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/users/", response_model=List[UserResponse])

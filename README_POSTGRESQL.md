@@ -79,19 +79,19 @@ curl -X DELETE "http://localhost:8000/api/v1/users/2"
 **Create a user profile:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/3/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
+curl -X POST "http://localhost:8000/api/v1/users/5/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
 ```
 
 **Get user profile:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/users/3/profile/"
+curl "http://localhost:8000/api/v1/users/5/profile/"
 ```
 
 **Update user profile:** ✅
 
 ```bash
-curl -X PUT "http://localhost:8000/api/v1/users/3/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
+curl -X PUT "http://localhost:8000/api/v1/users/5/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
 ```
 
 ### Guest Management
@@ -105,43 +105,70 @@ curl "http://localhost:8000/api/v1/guests/session"
 **Get guest information:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/guests/{guest_id}"
+curl "http://localhost:8000/api/v1/guests"
+
+curl "http://localhost:8000/api/v1/guests/1"
+
 ```
 
 **Update guest activity:** ✅
 
 ```bash
-curl -X PUT "http://localhost:8000/api/v1/guests/{guest_id}/active"
+curl -X PUT "http://localhost:8000/api/v1/guests/1/active"
 ```
 
-**Convert guest to user:** ✅
+### Text Entries
 
-```bash
-curl -X POST "http://localhost:8000/api/v1/guests/{guest_id}/convert" -H "Content-Type: application/json" -d '{"username":"newuser", "email":"newuser@example.com", "password":"password123"}'
-```
+Here's the updated README markdown for text entries based on the changes we discussed:
 
 ### Text Entries
 
 **Create a text entry (user):** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello, world!", "language":"en", "user_id":10}'
+curl -X POST "http://localhost:8000/api/v1/text_entries/" \
+     -H "Content-Type: application/json" \
+     -d '{"content":"Hello, world!", "language":"en", "user_id":5}'
 ```
 
 **Create a text entry (guest):** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/text_entries/" -H "Content-Type: application/json" -d '{"content":"Hello from guest!", "language":"en", "guest_id":"{guest_id}"}'
+curl -X POST "http://localhost:8000/api/v1/text_entries/" \
+     -H "Content-Type: application/json" \
+     -d '{"content":"Hello from guest!", "language":"en", "guest_id":2}'
 ```
 
-**Get text entries:** ✅
+**Get text entries for a specific user:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/text_entries/?user_id=10"
-curl "http://localhost:8000/api/v1/text_entries/?guest_id={guest_id}"
+curl "http://localhost:8000/api/v1/users/5/text_entries/"
+curl "http://localhost:8000/api/v1/text_entries/?user_id=5"
+
 ```
 
-**Get specific text entry:** ✅
+**Get text entries for a specific guest:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/guests/1/text_entries/"
+curl "http://localhost:8000/api/v1/text_entries/?guest_id=1"
+
+```
+
+**Get all text entries:** ✅
+
+```bash
+# Get the first 10 text entries
+curl "http://localhost:8000/api/v1/all_text_entries/"
+
+# Get the next 10 text entries
+curl "http://localhost:8000/api/v1/all_text_entries/?skip=10"
+
+# Get 20 text entries at once
+curl "http://localhost:8000/api/v1/all_text_entries/?limit=20"
+```
+
+**Get a specific text entry:** ✅
 
 ```bash
 curl "http://localhost:8000/api/v1/text_entries/1"
@@ -150,7 +177,7 @@ curl "http://localhost:8000/api/v1/text_entries/1"
 **Delete a text entry:** ✅
 
 ```bash
-curl -X DELETE "http://localhost:8000/api/v1/text_entries/1"
+curl -X DELETE "http://localhost:8000/api/v1/text_entries/7"
 ```
 
 ### Audio Generation
@@ -236,7 +263,6 @@ curl -X POST "http://localhost:8000/api/v1/users/10/feedback/" -H "Content-Type:
 ```bash
 curl "http://localhost:8000/api/v1/users/10/feedback/"
 ```
-
 
 ### System Settings
 
@@ -335,8 +361,6 @@ psql -U tts_user -d tts_app
 ```sql
 \dt
 ```
-
-
 
 **View contents of specific tables:**
 

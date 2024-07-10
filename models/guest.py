@@ -10,7 +10,6 @@ class Guest(Base):
     __tablename__ = "guests"
 
     id = Column(Integer, primary_key=True, index=True)
-    guest_id = Column(String, unique=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     last_active_date = Column(DateTime, default=datetime.utcnow)
     expiration_date = Column(DateTime)
