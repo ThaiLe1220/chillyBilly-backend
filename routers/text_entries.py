@@ -1,3 +1,5 @@
+""" ./routers/text_entries.py"""
+
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse

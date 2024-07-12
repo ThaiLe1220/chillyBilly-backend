@@ -1,4 +1,4 @@
-""" ./routers/profiles.py"""
+""" ./routers/user_profiles.py"""
 
 from typing import List
 from sqlalchemy.orm import Session

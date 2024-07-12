@@ -142,7 +142,7 @@ def get_voice(db: Session, voice_id: int) -> VoiceResponse:
     )
 
 
-def delete_voice(db: Session, user_id: int, voice_id: int):
+def delete_voice(db: Session, user_id: int, voice_id: int) -> dict:
     voice = (
         db.query(Voice)
         .filter(
@@ -156,6 +156,7 @@ def delete_voice(db: Session, user_id: int, voice_id: int):
         )
     db.delete(voice)
     db.commit()
+    return {"message": f"Voice with id {voice_id} has been successfully deleted"}
 
 
 def create_default_voices(db: Session, base_path: str) -> list[VoiceResponse]:

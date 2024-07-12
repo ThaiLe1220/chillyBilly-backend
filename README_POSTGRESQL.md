@@ -256,65 +256,79 @@ curl -X PUT "http://localhost:8000/api/v1/users/1/voices/2" \
 **Delete a voice:** ✅
 
 ```bash
-curl -X DELETE "http://localhost:8000/api/v1/users/10/voices/1"
+curl -X DELETE "http://localhost:8000/api/v1/users/1/voices/5"
 ```
 
-### Audio Generation
+### Audio Management
 
-**Create generated audio (user):** ✅
+**Create audio:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/audios/" -H "Content-Type: application/json" -d '{"text_entry_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
+curl -X POST "http://localhost:8000/api/v1/audios/" \
+     -H "Content-Type: application/json" \
+     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
 ```
 
-**Create generated audio (user with voice clone):** ✅
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/audios/" -H "Content-Type: application/json" -d '{"text_entry_id":1, "voice_clone_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
-```
-
-**Create generated audio (guest):** ✅
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/audios/" -H "Content-Type: application/json" -d '{"text_entry_id":2, "file_path":"/path/to/audio.mp3", "duration":3.5}'
-```
-
-**Get generated audio:** ✅
+**Get specific audio:** ✅
 
 ```bash
 curl "http://localhost:8000/api/v1/audios/1"
 ```
 
-**Get user's generated audios:** ✅
+**Get audios for a specific text entry:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/audios/?user_id=10"
+curl "http://localhost:8000/api/v1/audios/?text_entry_id=1"
 ```
 
-**Get guest's generated audios:** ✅
+**Get all audios (with pagination):** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/audios/?guest_id={guest_id}"
+curl "http://localhost:8000/api/v1/all-audios/?skip=0&limit=10"
 ```
 
-**Delete generated audio:** ✅
+**Delete audio:** ✅
 
 ```bash
 curl -X DELETE "http://localhost:8000/api/v1/audios/1"
 ```
+
+Certainly! I'll update the user feedback markup based on the new implementation. Here's the revised version:
 
 ### User Feedback
 
 **Create user feedback:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/10/feedback/" -H "Content-Type: application/json" -d '{"audio_id":1, "rating":5, "comment":"Great audio quality!"}'
+curl -X POST "http://localhost:8000/api/v1/feedbacks/?user_id=1" \
+     -H "Content-Type: application/json" \
+     -d '{"audio_id":1, "rating":1, "comment":"Great audio quality!"}'
 ```
 
-**Get user feedback:** ✅
+**Get user feedbacks:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/users/10/feedback/"
+curl "http://localhost:8000/api/v1/feedbacks/?user_id=10&skip=0&limit=10"
+```
+
+**Get specific user feedback:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/feedbacks/1?user_id=10"
+```
+
+**Update user feedback:** ✅
+
+```bash
+curl -X PUT "http://localhost:8000/api/v1/feedbacks/1?user_id=10" \
+     -H "Content-Type: application/json" \
+     -d '{"rating":4, "comment":"Good audio, but could be better"}'
+```
+
+**Delete user feedback:** ✅
+
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/feedbacks/1?user_id=10"
 ```
 
 ### System Settings

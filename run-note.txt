@@ -59,13 +59,10 @@ curl -X POST "http://localhost:8000/api/v1/users/1/voices/" \
     "language": "en",
     "description": "My custom voice"
   }' | jq '.'
-
 curl "http://localhost:8000/api/v1/voices/?skip=0&limit=10" | jq '.'
 curl "http://localhost:8000/api/v1/users/1/voices/?skip=0&limit=10" | jq '.'
 curl "http://localhost:8000/api/v1/voices/1" | jq '.'
 curl "http://localhost:8000/api/v1/voices/5" | jq '.'
-
-
 curl -X PUT "http://localhost:8000/api/v1/users/1/voices/5" \
      -H "Content-Type: application/json" \
      -d '{
@@ -74,3 +71,18 @@ curl -X PUT "http://localhost:8000/api/v1/users/1/voices/5" \
          "description": "This is an updated description",
          "original_file_path": "/updated/path/to/audio/file.mp3"
      }' | jq '.'
+
+
+
+curl -X POST "http://localhost:8000/api/v1/audios/" \
+     -H "Content-Type: application/json" \
+     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}' | jq '.'
+curl "http://localhost:8000/api/v1/audios/1" | jq '.'
+curl "http://localhost:8000/api/v1/audios/?text_entry_id=1" | jq '.'
+curl "http://localhost:8000/api/v1/all-audios/?skip=0&limit=10" | jq '.'
+
+
+
+curl -X POST "http://localhost:8000/api/v1/feedbacks/?user_id=1" \
+     -H "Content-Type: application/json" \
+     -d '{"audio_id":1, "rating":1, "comment":"Great audio quality!"}' | jq '.'
