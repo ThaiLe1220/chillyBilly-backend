@@ -1,0 +1,48 @@
+curl -s -X POST "http://localhost:8000/api/v1/users/" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}' | jq '.'
+curl -s -X POST "http://localhost:8000/api/v1/users/" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove"}' | jq '.'
+curl -s "http://localhost:8000/api/v1/users/" | jq '.'
+curl -s "http://localhost:8000/api/v1/users/1" | jq '.'
+curl -s -X PUT "http://localhost:8000/api/v1/users/1" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"eu", "email":"eu@ex.com", "password":"eu123"}' | jq '.'
+curl -s -X POST "http://localhost:8000/api/v1/users/1/verify_password" \
+     -H "Content-Type: application/json" \
+     -d '{"password":"eu123"}' | jq '.'
+curl -s -X DELETE "http://localhost:8000/api/v1/users/2" | jq '.'
+curl -s -X POST "http://localhost:8000/api/v1/users/1/profile/" \
+     -H "Content-Type: application/json" \
+     -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}' | jq '.'
+curl -s "http://localhost:8000/api/v1/users/1/profile/" | jq '.'
+curl -s -X PUT "http://localhost:8000/api/v1/users/1/profile/" \
+     -H "Content-Type: application/json" \
+     -d '{"first_name":"Eugene", "last_name":"LiuLiu"}' | jq '.'
+
+
+
+for i in {1..5}; do
+    curl -s -X POST "http://localhost:8000/api/v1/guests" | jq '.'
+done
+curl -s "http://localhost:8000/api/v1/guests" | jq '.'
+curl -s "http://localhost:8000/api/v1/guests/1" | jq '.'
+curl -X PUT "http://localhost:8000/api/v1/guests/1" | jq '.'
+curl -X DELETE "http://localhost:8000/api/v1/guests/2" | jq '.'
+curl -X DELETE "http://localhost:8000/api/v1/guests/cleanup/" | jq '.'
+
+
+
+curl -X POST "http://localhost:8000/api/v1/text_entries/" \
+     -H "Content-Type: application/json" \
+     -d '{"content":"Hello, world!", "language":"en", "user_id":1}' | jq '.'
+curl -X POST "http://localhost:8000/api/v1/text_entries/" \
+     -H "Content-Type: application/json" \
+     -d '{"content":"Hello from guest!", "language":"en", "guest_id":1}' | jq '.'
+curl "http://localhost:8000/api/v1/users/1/text_entries/" | jq '.'
+curl "http://localhost:8000/api/v1/text_entries/?user_id=1" | jq '.'
+curl "http://localhost:8000/api/v1/guests/1/text_entries/" | jq '.'
+curl "http://localhost:8000/api/v1/text_entries/?guest_id=1" | jq '.'
+curl "http://localhost:8000/api/v1/all_text_entries/" | jq '.'
+curl -X DELETE "http://localhost:8000/api/v1/text_entries/2"  | jq '.'

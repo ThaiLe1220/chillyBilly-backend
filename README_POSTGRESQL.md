@@ -6,6 +6,7 @@
 
 sudo apt update
 sudo apt install postgresql postgresql-contrib
+sudo apt-get install jq
 
 ### Step 2: Create a database
 
@@ -43,8 +44,13 @@ Certainly! I'll update the README section to test all the implemented routes, in
 **Create users:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}'
-curl -X POST "http://localhost:8000/api/v1/users/" -H "Content-Type: application/json" -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove"}'
+curl -X POST "http://localhost:8000/api/v1/users/" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}'
+
+curl -X POST "http://localhost:8000/api/v1/users/" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove"}'
 ```
 
 **Get all users:** ✅
@@ -57,7 +63,7 @@ curl "http://localhost:8000/api/v1/users/1"
 **Update user information:** ✅
 
 ```bash
-curl -X PUT "http://localhost:8000/api/v1/users/3" \
+curl -X PUT "http://localhost:8000/api/v1/users/1" \
      -H "Content-Type: application/json" \
      -d '{"username":"eu", "email":"eu@ex.com", "password":"eu123"}'
 ```
@@ -65,7 +71,7 @@ curl -X PUT "http://localhost:8000/api/v1/users/3" \
 **Verify user password:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/3/verify_password" \
+curl -X POST "http://localhost:8000/api/v1/users/1/verify_password" \
      -H "Content-Type: application/json" \
      -d '{"password":"eu123"}'
 ```
@@ -79,47 +85,62 @@ curl -X DELETE "http://localhost:8000/api/v1/users/2"
 **Create a user profile:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/users/5/profile/" -H "Content-Type: application/json" -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
+curl -X POST "http://localhost:8000/api/v1/users/1/profile/" \
+     -H "Content-Type: application/json" \
+     -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}'
 ```
 
 **Get user profile:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/users/5/profile/"
+curl "http://localhost:8000/api/v1/users/1/profile/"
 ```
 
 **Update user profile:** ✅
 
 ```bash
-curl -X PUT "http://localhost:8000/api/v1/users/5/profile/" -H "Content-Type: application/json" -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
+curl -X PUT "http://localhost:8000/api/v1/users/1/profile/" \
+     -H "Content-Type: application/json" \
+     -d '{"first_name":"Eugene", "last_name":"LiuLiu"}'
 ```
 
 ### Guest Management
 
-**Create or get guest session:** ✅
+**Create guest session:**
 
 ```bash
-curl "http://localhost:8000/api/v1/guests/session"
+curl -X POST "http://localhost:8000/api/v1/guests"
 ```
 
-**Get guest information:** ✅
+**Get all guests:**
 
 ```bash
 curl "http://localhost:8000/api/v1/guests"
-
-curl "http://localhost:8000/api/v1/guests/1"
-
 ```
 
-**Update guest activity:** ✅
+**Get specific guest information:**
 
 ```bash
-curl -X PUT "http://localhost:8000/api/v1/guests/1/active"
+curl "http://localhost:8000/api/v1/guests/1"
 ```
 
-### Text Entries
+**Update guest activity:**
 
-Here's the updated README markdown for text entries based on the changes we discussed:
+```bash
+curl -X PUT "http://localhost:8000/api/v1/guests/1"
+```
+
+**Delete a guest:**
+
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/guests/1"
+```
+
+**Cleanup inactive guests:**
+
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/guests/cleanup/"
+```
 
 ### Text Entries
 
@@ -128,7 +149,7 @@ Here's the updated README markdown for text entries based on the changes we disc
 ```bash
 curl -X POST "http://localhost:8000/api/v1/text_entries/" \
      -H "Content-Type: application/json" \
-     -d '{"content":"Hello, world!", "language":"en", "user_id":5}'
+     -d '{"content":"Hello, world!", "language":"en", "user_id":1}'
 ```
 
 **Create a text entry (guest):** ✅
@@ -136,14 +157,14 @@ curl -X POST "http://localhost:8000/api/v1/text_entries/" \
 ```bash
 curl -X POST "http://localhost:8000/api/v1/text_entries/" \
      -H "Content-Type: application/json" \
-     -d '{"content":"Hello from guest!", "language":"en", "guest_id":2}'
+     -d '{"content":"Hello from guest!", "language":"en", "guest_id":1}'
 ```
 
 **Get text entries for a specific user:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/users/5/text_entries/"
-curl "http://localhost:8000/api/v1/text_entries/?user_id=5"
+curl "http://localhost:8000/api/v1/users/1/text_entries/"
+curl "http://localhost:8000/api/v1/text_entries/?user_id=1"
 
 ```
 

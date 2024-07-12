@@ -25,16 +25,19 @@ class User(Base):
         cascade="all, delete-orphan",
     )
     text_entries = relationship(
-        "TextEntry", back_populates="user", cascade="all, delete-orphan"
+        "TextEntry", back_populates="user", cascade="all, delete"
     )
     generated_audio = relationship(
-        "GeneratedAudio", back_populates="user", cascade="all, delete-orphan"
+        "GeneratedAudio", back_populates="user", cascade="all, delete"
     )
     voice_clones = relationship(
-        "VoiceClone", back_populates="user", cascade="all, delete-orphan"
+        "VoiceClone",
+        back_populates="user",
+        cascade="all, delete",
+        primaryjoin="and_(User.id==VoiceClone.user_id, VoiceClone.is_default==False)",
     )
     user_feedback = relationship(
-        "UserFeedback", back_populates="user", cascade="all, delete-orphan"
+        "UserFeedback", back_populates="user", cascade="all, delete"
     )
     # sessions = relationship(
     #     "Session", back_populates="user", cascade="all, delete-orphan"

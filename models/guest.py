@@ -15,7 +15,10 @@ class Guest(Base):
     expiration_date = Column(DateTime)
 
     text_entries = relationship(
-        "TextEntry", back_populates="guest", cascade="all, delete-orphan"
+        "TextEntry", back_populates="guest", cascade="all, delete"
+    )
+    generated_audio = relationship(
+        "GeneratedAudio", back_populates="guest", cascade="all, delete"
     )
 
     @property
@@ -24,6 +27,5 @@ class Guest(Base):
 
     def update_activity(self):
         self.last_active_date = datetime.utcnow()
-        self.expiration_date = self.last_active_date + timedelta(
-            days=30
-        )  # Set expiration to 30 days from last activity
+        # self.expiration_date = self.last_active_date + timedelta(minutes=1)
+        self.expiration_date = self.last_active_date + timedelta(days=7)

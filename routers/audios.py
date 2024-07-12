@@ -7,7 +7,6 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 
 from schemas.audio import GeneratedAudioCreate, GeneratedAudioResponse
-from services.guest_service import get_or_create_guest
 from models import GeneratedAudio, TextEntry, VoiceClone
 from database import get_db
 
@@ -53,29 +52,29 @@ def read_audio(audio_id: int, db: Session = Depends(get_db)):
     return db_audio
 
 
-@router.get("/audios/", response_model=List[GeneratedAudioResponse])
-def read_audios(
-    user_id: int = None,
-    guest_id: str = None,
-    skip: int = 0,
-    limit: int = 10,
-    db: Session = Depends(get_db),
-):
-    if user_id is None and guest_id is None:
-        raise HTTPException(
-            status_code=400, detail="Either user_id or guest_id must be provided"
-        )
+# @router.get("/audios/", response_model=List[GeneratedAudioResponse])
+# def read_audios(
+#     user_id: int = None,
+#     guest_id: str = None,
+#     skip: int = 0,
+#     limit: int = 10,
+#     db: Session = Depends(get_db),
+# ):
+#     if user_id is None and guest_id is None:
+#         raise HTTPException(
+#             status_code=400, detail="Either user_id or guest_id must be provided"
+#         )
 
-    query = db.query(GeneratedAudio).join(TextEntry)
+#     query = db.query(GeneratedAudio).join(TextEntry)
 
-    if user_id:
-        query = query.filter(TextEntry.user_id == user_id)
-    elif guest_id:
-        guest = get_or_create_guest(db, guest_id)
-        query = query.filter(TextEntry.guest_id == guest.id)
+#     if user_id:
+#         query = query.filter(TextEntry.user_id == user_id)
+#     elif guest_id:
+#         guest = get_or_create_guest(db, guest_id)
+#         query = query.filter(TextEntry.guest_id == guest.id)
 
-    audios = query.offset(skip).limit(limit).all()
-    return audios
+#     audios = query.offset(skip).limit(limit).all()
+#     return audios
 
 
 @router.delete("/audios/{audio_id}")

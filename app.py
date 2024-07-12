@@ -14,7 +14,7 @@ from routers import (
 import models
 
 # Drop all tables - careful with this
-# Base.metadata.drop_all(bind=engine)
+Base.metadata.drop_all(bind=engine)
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
