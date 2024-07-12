@@ -7,19 +7,17 @@ from datetime import datetime, timedelta
 
 
 class Guest(Base):
-    __tablename__ = "guests"
+    __tablename__ = "guest"
 
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     last_active_date = Column(DateTime, default=datetime.utcnow)
     expiration_date = Column(DateTime)
 
-    text_entries = relationship(
+    text_entry = relationship(
         "TextEntry", back_populates="guest", cascade="all, delete"
     )
-    generated_audio = relationship(
-        "GeneratedAudio", back_populates="guest", cascade="all, delete"
-    )
+    audio = relationship("Audio", back_populates="guest", cascade="all, delete")
 
     @property
     def is_expired(self):

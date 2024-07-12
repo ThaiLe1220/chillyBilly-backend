@@ -198,7 +198,65 @@ curl "http://localhost:8000/api/v1/text_entries/1"
 **Delete a text entry:** ✅
 
 ```bash
-curl -X DELETE "http://localhost:8000/api/v1/text_entries/7"
+curl -X DELETE "http://localhost:8000/api/v1/text_entries/2"
+```
+
+### Voice Management
+
+**Create default voices:** ✅
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/voices/create_defaults/"
+```
+
+**Create a voice:** ✅
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/users/1/voices/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "voice_name": "MyVoice",
+    "original_file_path": "/path/to/original_voice.wav",
+    "language": "en",
+    "description": "My custom voice"
+  }'
+```
+
+**Get all voices:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/voices/?skip=0&limit=10"
+```
+
+**Get user's voices (including default voices):** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/users/10/voices/?skip=0&limit=10"
+```
+
+**Get a specific voice:** ✅
+
+```bash
+curl "http://localhost:8000/api/v1/voices/1"
+```
+
+**Update a voice:** ✅
+
+```bash
+curl -X PUT "http://localhost:8000/api/v1/users/1/voices/2" \
+     -H "Content-Type: application/json" \
+     -d '{
+         "voice_name": "Updated Voice Name",
+         "language": "en",
+         "description": "This is an updated description",
+         "original_file_path": "/updated/path/to/audio/file.mp3"
+     }'
+```
+
+**Delete a voice:** ✅
+
+```bash
+curl -X DELETE "http://localhost:8000/api/v1/users/10/voices/1"
 ```
 
 ### Audio Generation
@@ -243,32 +301,6 @@ curl "http://localhost:8000/api/v1/audios/?guest_id={guest_id}"
 
 ```bash
 curl -X DELETE "http://localhost:8000/api/v1/audios/1"
-```
-
-### Voice Cloning
-
-**Create a voice clone:** ✅
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/users/10/voice_clones/" -H "Content-Type: application/json" -d '{"voice_name":"MyVoice", "original_file_path":"/path/to/original_voice.wav"}'
-```
-
-**Get a specific voice clone:** ✅
-
-```bash
-curl "http://localhost:8000/api/v1/voice_clones/1"
-```
-
-**Get user's voice clones:** ✅
-
-```bash
-curl "http://localhost:8000/api/v1/users/10/voice_clones/"
-```
-
-**Delete a voice clone:** ✅
-
-```bash
-curl -X DELETE "http://localhost:8000/api/v1/users/10/voice_clones/1"
 ```
 
 ### User Feedback
@@ -405,4 +437,17 @@ SELECT * FROM usage_history;
 
 ```sql
 DELETE FROM users WHERE id = 1;
+
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS guests;
+DROP TABLE IF EXISTS user_profiles;
+DROP TABLE IF EXISTS generated_audio;
+DROP TABLE IF EXISTS text_entries;
+DROP TABLE IF EXISTS voice_clones;
+DROP TABLE IF EXISTS user_feedback;
+DROP TABLE IF EXISTS system_settings;
+DROP TABLE IF EXISTS api_usage;
+DROP TABLE IF EXISTS error_logs;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS usage_history;
 ```

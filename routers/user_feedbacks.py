@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter, Depends, HTTPException, status, Response
-from models import UserFeedback, User, GeneratedAudio
-from schemas.feedback import (
+from models import UserFeedback, User, Audio
+from schemas.user_feedback import (
     UserFeedbackCreate,
     UserFeedbackUpdate,
     UserFeedbackResponse,
@@ -21,9 +21,7 @@ router = APIRouter()
 def create_feedback(
     user_id: int, feedback: UserFeedbackCreate, db: Session = Depends(get_db)
 ):
-    audio = (
-        db.query(GeneratedAudio).filter(GeneratedAudio.id == feedback.audio_id).first()
-    )
+    audio = db.query(Audio).filter(Audio.id == feedback.audio_id).first()
     if audio is None:
         raise HTTPException(status_code=404, detail="Audio not found")
 
@@ -94,7 +92,7 @@ def read_user_feedbacks(
 def read_audio_feedbacks(
     audio_id: int, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
-    audio = db.query(GeneratedAudio).filter(GeneratedAudio.id == audio_id).first()
+    audio = db.query(Audio).filter(Audio.id == audio_id).first()
     if audio is None:
         raise HTTPException(status_code=404, detail="Audio not found")
     feedbacks = (

@@ -1,9 +1,9 @@
-""" ./models/__imit__.py"""
+""" ./models/__init__.py"""
 
 from .user import User
-from .profile import UserProfile
+from .user_profile import UserProfile
 from .text_entry import TextEntry
-from .audio import GeneratedAudio
-from .voice_clone import VoiceClone
-from .feedback import UserFeedback
+from .audio import Audio
+from .voice import Voice
+from .user_feedback import UserFeedback
 from .guest import Guest

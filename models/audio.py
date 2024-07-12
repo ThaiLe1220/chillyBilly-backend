@@ -14,23 +14,23 @@ from database import Base
 from datetime import datetime
 
 
-class GeneratedAudio(Base):
-    __tablename__ = "generated_audio"
+class Audio(Base):
+    __tablename__ = "audio"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    guest_id = Column(Integer, ForeignKey("guests.id"), nullable=True)
-    text_entry_id = Column(Integer, ForeignKey("text_entries.id"), nullable=False)
-    voice_clone_id = Column(Integer, ForeignKey("voice_clones.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=True)
+    guest_id = Column(Integer, ForeignKey("guest.id"), nullable=True)
+    text_entry_id = Column(Integer, ForeignKey("text_entry.id"), nullable=False)
+    voice_id = Column(Integer, ForeignKey("voice.id"), nullable=True)
     file_path = Column(String, nullable=False)
     duration = Column(Float, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship("User", back_populates="generated_audio")
-    guest = relationship("Guest", back_populates="generated_audio")
-    text_entry = relationship("TextEntry", back_populates="generated_audio")
-    voice_clone = relationship("VoiceClone", back_populates="generated_audio")
-    feedback = relationship(
+    user = relationship("User", back_populates="audio")
+    guest = relationship("Guest", back_populates="audio")
+    text_entry = relationship("TextEntry", back_populates="audio")
+    voice = relationship("Voice", back_populates="audio")
+    user_feedback = relationship(
         "UserFeedback", back_populates="audio", cascade="all, delete"
     )
 

@@ -13,6 +13,7 @@ curl -s -X POST "http://localhost:8000/api/v1/users/1/verify_password" \
      -H "Content-Type: application/json" \
      -d '{"password":"eu123"}' | jq '.'
 curl -s -X DELETE "http://localhost:8000/api/v1/users/2" | jq '.'
+
 curl -s -X POST "http://localhost:8000/api/v1/users/1/profile/" \
      -H "Content-Type: application/json" \
      -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}' | jq '.'
@@ -46,3 +47,30 @@ curl "http://localhost:8000/api/v1/guests/1/text_entries/" | jq '.'
 curl "http://localhost:8000/api/v1/text_entries/?guest_id=1" | jq '.'
 curl "http://localhost:8000/api/v1/all_text_entries/" | jq '.'
 curl -X DELETE "http://localhost:8000/api/v1/text_entries/2"  | jq '.'
+
+
+
+curl -X POST "http://localhost:8000/api/v1/voices/create_defaults/" | jq '.'
+curl -X POST "http://localhost:8000/api/v1/users/1/voices/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "voice_name": "MyVoice",
+    "original_file_path": "/path/to/original_voice.wav",
+    "language": "en",
+    "description": "My custom voice"
+  }' | jq '.'
+
+curl "http://localhost:8000/api/v1/voices/?skip=0&limit=10" | jq '.'
+curl "http://localhost:8000/api/v1/users/1/voices/?skip=0&limit=10" | jq '.'
+curl "http://localhost:8000/api/v1/voices/1" | jq '.'
+curl "http://localhost:8000/api/v1/voices/5" | jq '.'
+
+
+curl -X PUT "http://localhost:8000/api/v1/users/1/voices/5" \
+     -H "Content-Type: application/json" \
+     -d '{
+         "voice_name": "Updated Voice Name",
+         "language": "en",
+         "description": "This is an updated description",
+         "original_file_path": "/updated/path/to/audio/file.mp3"
+     }' | jq '.'

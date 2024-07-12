@@ -6,13 +6,13 @@ from database import Base
 
 
 class UserProfile(Base):
-    __tablename__ = "user_profiles"
+    __tablename__ = "user_profile"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), unique=True)
     first_name = Column(String)
     last_name = Column(String)
     date_of_birth = Column(DateTime)
     preferred_language = Column(Enum("vi", "en", name="language_enum"))
 
-    user = relationship("User", back_populates="profile")
+    user = relationship("User", back_populates="user_profile")

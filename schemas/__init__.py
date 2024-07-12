@@ -1,1 +1,1 @@
-""" ./schemas/__imit__.py"""
+""" ./schemas/__init__.py"""

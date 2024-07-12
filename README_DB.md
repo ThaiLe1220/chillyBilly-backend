@@ -3,17 +3,17 @@
 
 ## Database Tables
 
-1. Users
-2. UserProfiles
-3. Sessions
-4. TextEntries
-5. GeneratedAudio
-6. VoiceClones
+1. User
+2. UserProfile
+3. Session
+4. TextEntry
+5. Audio
+6. Voice
 7. UsageHistory
-8. ErrorLogs
+8. ErrorLog
 9. APIUsage
 10. UserFeedback
-11. SystemSettings
+11. SystemSetting
 
 ## Additional Aspects
 
@@ -46,7 +46,7 @@
 
 ### Full Architecture
 
-## Users Table
+## User Table
 
 - **Description**: Stores basic user information and handles authentication details.
 - **Columns**:
@@ -59,7 +59,7 @@
   - **LastLogin**: Timestamp of the last login.
   - **LastActiveDate**: Timestamp of the last activity for data retention purposes.
 
-## UserProfiles Table
+## UserProfile Table
 
 - **Description**: Stores additional profile information for users.
 - **Columns**:
@@ -70,7 +70,7 @@
   - **DateOfBirth**: The user's date of birth.
   - **PreferredLanguage**: The user's preferred language.
 
-## Sessions Table
+## Session Table
 
 - **Description**: Tracks active user sessions and session details.
 - **Columns**:
@@ -81,7 +81,7 @@
   - **ExpiryTime**: Session expiry time.
   - **LastActivity**: Timestamp of the last activity in the session.
 
-## TextEntries Table
+## TextEntry Table
 
 - **Description**: Stores text entries input by users for conversion to audio.
 - **Columns**:
@@ -91,7 +91,7 @@
   - **Language**: Language of the text content.
   - **CreatedAt**: Timestamp of text entry creation.
 
-## GeneratedAudio Table
+## Audio Table
 
 - **Description**: Stores information about the audio files generated from text entries.
 - **Columns**:
@@ -102,7 +102,7 @@
   - **Duration**: Duration of the audio.
   - **CreatedAt**: Timestamp of audio generation.
 
-## VoiceClones Table
+## Voice Table
 
 - **Description**: Stores information about voice clones created by users.
 - **Columns**:
@@ -123,7 +123,7 @@
   - **RelatedID**: Identifier related to the action.
   - **Timestamp**: Timestamp of the action.
 
-## ErrorLogs Table
+## ErrorLog Table
 
 - **Description**: Logs errors for system monitoring and troubleshooting.
 - **Columns**:
@@ -155,7 +155,7 @@
   - **Comment**: Feedback comment.
   - **CreatedAt**: Timestamp of feedback submission.
 
-## SystemSettings Table
+## SystemSetting Table
 
 - **Description**: Stores global configuration settings for the application.
 - **Columns**:

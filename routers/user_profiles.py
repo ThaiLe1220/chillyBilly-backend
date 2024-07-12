@@ -3,8 +3,12 @@
 from typing import List
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, status, Response
-from schemas.profile import UserProfileCreate, UserProfileUpdate, UserProfileResponse
-from models.profile import UserProfile
+from schemas.user_profile import (
+    UserProfileCreate,
+    UserProfileUpdate,
+    UserProfileResponse,
+)
+from models.user_profile import UserProfile
 from models.user import User
 from database import get_db
 
@@ -19,11 +23,11 @@ def create_user_profile(
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if db_user.profile:
+    if db_user.user_profile:
         raise HTTPException(status_code=400, detail="User already has a profile")
 
     db_profile = UserProfile(**profile.dict(), user_id=user_id)
-    db_user.profile = db_profile
+    db_user.user_profile = db_profile
     db.add(db_profile)
     db.commit()
     db.refresh(db_profile)

@@ -7,7 +7,7 @@ from database import Base
 
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False)
@@ -18,36 +18,23 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     last_active_date = Column(DateTime, nullable=True)
 
-    profile = relationship(
+    user_profile = relationship(
         "UserProfile",
         back_populates="user",
         uselist=False,
         cascade="all, delete-orphan",
     )
-    text_entries = relationship(
-        "TextEntry", back_populates="user", cascade="all, delete"
-    )
-    generated_audio = relationship(
-        "GeneratedAudio", back_populates="user", cascade="all, delete"
-    )
-    voice_clones = relationship(
-        "VoiceClone",
+    text_entry = relationship("TextEntry", back_populates="user", cascade="all, delete")
+    audio = relationship("Audio", back_populates="user", cascade="all, delete")
+    voice = relationship(
+        "Voice",
         back_populates="user",
         cascade="all, delete",
-        primaryjoin="and_(User.id==VoiceClone.user_id, VoiceClone.is_default==False)",
+        primaryjoin="and_(User.id==Voice.user_id, Voice.is_default==False)",
     )
     user_feedback = relationship(
         "UserFeedback", back_populates="user", cascade="all, delete"
     )
-    # sessions = relationship(
-    #     "Session", back_populates="user", cascade="all, delete-orphan"
-    # )
-    # usage_history = relationship(
-    #     "UsageHistory", back_populates="user", cascade="all, delete-orphan"
-    # )
-    # api_usage = relationship(
-    #     "APIUsage", back_populates="user", cascade="all, delete-orphan"
-    # )
 
     __table_args__ = (
         UniqueConstraint("username", name="uq_username"),

@@ -16,22 +16,20 @@ from datetime import datetime
 
 
 class TextEntry(Base):
-    __tablename__ = "text_entries"
+    __tablename__ = "text_entry"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=True)
     guest_id = Column(
-        Integer, ForeignKey("guests.id", ondelete="CASCADE"), nullable=True
+        Integer, ForeignKey("guest.id", ondelete="CASCADE"), nullable=True
     )
     content = Column(Text, nullable=False)
     language = Column(Enum("vi", "en", name="language_enum"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship("User", back_populates="text_entries")
-    guest = relationship("Guest", back_populates="text_entries")
-    generated_audio = relationship(
-        "GeneratedAudio", back_populates="text_entry", cascade="all, delete"
-    )
+    user = relationship("User", back_populates="text_entry")
+    guest = relationship("Guest", back_populates="text_entry")
+    audio = relationship("Audio", back_populates="text_entry", cascade="all, delete")
 
     __table_args__ = (
         CheckConstraint(
