@@ -81,11 +81,18 @@ curl -X POST "http://localhost:8000/api/v1/audios/" \
      -H "Content-Type: application/json" \
      -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
 curl "http://localhost:8000/api/v1/audios/1" | jq '.'
-curl "http://localhost:8000/api/v1/audios/?user_id=1"
+curl "http://localhost:8000/api/v1/audios/?user_id=1" | jq '.'
 curl "http://localhost:8000/api/v1/audios/?text_entry_id=1" | jq '.'
 curl "http://localhost:8000/api/v1/all-audios/?skip=0&limit=10" | jq '.'
 
 
-curl -X POST "http://localhost:8000/api/v1/feedbacks/?user_id=1" \
+
+curl -X POST "http://localhost:8000/api/v1/users/1/feedback" \
      -H "Content-Type: application/json" \
-     -d '{"audio_id":1, "rating":1, "comment":"Great audio quality!"}' | jq '.'
+     -d '{"audio_id": 1, "rating": 5, "comment": "Great audio quality!"}' | jq '.'
+
+curl "http://localhost:8000/api/v1/feedback/1" | jq '.'
+curl -X PUT "http://localhost:8000/api/v1/feedback/1" \
+     -H "Content-Type: application/json" \
+     -d '{"rating": 4, "comment": "Good audio, but could be better."}' | jq '.'
+     curl -X DELETE "http://localhost:8000/api/v1/feedback/1" | jq '.'

@@ -292,40 +292,40 @@ curl "http://localhost:8000/api/v1/all-audios/"
 curl -X DELETE "http://localhost:8000/api/v1/audios/1"
 ```
 
-### User Feedback
+### User Feedback Management
 
 **Create user feedback:** ✅
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/feedbacks/?user_id=1" \
+curl -X POST "http://localhost:8000/api/v1/users/1/feedback" \
      -H "Content-Type: application/json" \
-     -d '{"audio_id":1, "rating":1, "comment":"Great audio quality!"}'
+     -d '{"audio_id": 1, "rating": 5, "comment": "Great audio quality!"}'
 ```
 
-**Get user feedbacks:** ✅
+**Get specific feedback:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/feedbacks/?user_id=10&skip=0&limit=10"
+curl "http://localhost:8000/api/v1/feedback/1"
 ```
 
-**Get specific user feedback:** ✅
+**Get all feedback for a specific user:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/feedbacks/1?user_id=10"
+curl "http://localhost:8000/api/v1/users/1/feedback"
 ```
 
-**Update user feedback:** ✅
+**Update existing feedback:** ✅
 
 ```bash
-curl -X PUT "http://localhost:8000/api/v1/feedbacks/1?user_id=10" \
+curl -X PUT "http://localhost:8000/api/v1/feedback/1" \
      -H "Content-Type: application/json" \
-     -d '{"rating":4, "comment":"Good audio, but could be better"}'
+     -d '{"rating": 4, "comment": "Good audio, but could be better."}'
 ```
 
-**Delete user feedback:** ✅
+**Delete feedback:** ✅
 
 ```bash
-curl -X DELETE "http://localhost:8000/api/v1/feedbacks/1?user_id=10"
+curl -X DELETE "http://localhost:8000/api/v1/feedback/1"
 ```
 
 ### System Settings
