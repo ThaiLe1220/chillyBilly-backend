@@ -1,4 +1,4 @@
-"""Filename: ./models/profile.py"""
+"""Filename: ./models/user_profile.py"""
 
 from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey
 from sqlalchemy.orm import relationship

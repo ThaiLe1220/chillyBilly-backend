@@ -1,19 +1,18 @@
-curl -s -X POST "http://localhost:8000/api/v1/users/" \
+curl -X POST "http://localhost:8000/api/v1/users/" \
      -H "Content-Type: application/json" \
-     -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}' | jq '.'
-curl -s -X POST "http://localhost:8000/api/v1/users/" \
+     -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220", "role":"REGULAR"}'
+curl -X POST "http://localhost:8000/api/v1/users/" \
      -H "Content-Type: application/json" \
-     -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove"}' | jq '.'
+     -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove", "role":"ADMIN"}'
 curl -s "http://localhost:8000/api/v1/users/" | jq '.'
 curl -s "http://localhost:8000/api/v1/users/1" | jq '.'
-curl -s -X PUT "http://localhost:8000/api/v1/users/1" \
+curl -X PUT "http://localhost:8000/api/v1/users/1" \
      -H "Content-Type: application/json" \
-     -d '{"username":"eu", "email":"eu@ex.com", "password":"eu123"}' | jq '.'
+     -d '{"username":"eu", "email":"eu@ex.com", "password":"eu123", "is_active": true, "role":"ADMIN"}'
 curl -s -X POST "http://localhost:8000/api/v1/users/1/verify_password" \
      -H "Content-Type: application/json" \
      -d '{"password":"eu123"}' | jq '.'
 curl -s -X DELETE "http://localhost:8000/api/v1/users/2" | jq '.'
-
 curl -s -X POST "http://localhost:8000/api/v1/users/1/profile/" \
      -H "Content-Type: application/json" \
      -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}' | jq '.'
@@ -76,11 +75,15 @@ curl -X PUT "http://localhost:8000/api/v1/users/1/voices/5" \
 
 curl -X POST "http://localhost:8000/api/v1/audios/" \
      -H "Content-Type: application/json" \
-     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}' | jq '.'
+     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
+
+curl -X POST "http://localhost:8000/api/v1/audios/" \
+     -H "Content-Type: application/json" \
+     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
 curl "http://localhost:8000/api/v1/audios/1" | jq '.'
+curl "http://localhost:8000/api/v1/audios/?user_id=1"
 curl "http://localhost:8000/api/v1/audios/?text_entry_id=1" | jq '.'
 curl "http://localhost:8000/api/v1/all-audios/?skip=0&limit=10" | jq '.'
-
 
 
 curl -X POST "http://localhost:8000/api/v1/feedbacks/?user_id=1" \

@@ -37,8 +37,6 @@ Check `models`, `schemas`, `routers` directories and `database.py`
 
 Run the app `python3 app.py`
 
-Certainly! I'll update the README section to test all the implemented routes, including the new guest functionality and the updated audio generation process. Here's the revised version:
-
 ### User Management
 
 **Create users:** ✅
@@ -46,11 +44,11 @@ Certainly! I'll update the README section to test all the implemented routes, in
 ```bash
 curl -X POST "http://localhost:8000/api/v1/users/" \
      -H "Content-Type: application/json" \
-     -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220"}'
+     -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220", "role":"REGULAR"}'
 
 curl -X POST "http://localhost:8000/api/v1/users/" \
      -H "Content-Type: application/json" \
-     -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove"}'
+     -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove", "role":"ADMIN"}'
 ```
 
 **Get all users:** ✅
@@ -65,7 +63,7 @@ curl "http://localhost:8000/api/v1/users/1"
 ```bash
 curl -X PUT "http://localhost:8000/api/v1/users/1" \
      -H "Content-Type: application/json" \
-     -d '{"username":"eu", "email":"eu@ex.com", "password":"eu123"}'
+     -d '{"username":"eu", "email":"eu@ex.com", "password":"eu123", "is_active": true, "role":"ADMIN"}'
 ```
 
 **Verify user password:** ✅
@@ -266,7 +264,7 @@ curl -X DELETE "http://localhost:8000/api/v1/users/1/voices/5"
 ```bash
 curl -X POST "http://localhost:8000/api/v1/audios/" \
      -H "Content-Type: application/json" \
-     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5}'
+     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
 ```
 
 **Get specific audio:** ✅
@@ -275,16 +273,17 @@ curl -X POST "http://localhost:8000/api/v1/audios/" \
 curl "http://localhost:8000/api/v1/audios/1"
 ```
 
-**Get audios for a specific text entry:** ✅
+**Get audios for a specific user or guest:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/audios/?text_entry_id=1"
+curl "http://localhost:8000/api/v1/audios/?user_id=1"
+curl "http://localhost:8000/api/v1/audios/?guest_id=1"
 ```
 
-**Get all audios (with pagination):** ✅
+**Get all audios:** ✅
 
 ```bash
-curl "http://localhost:8000/api/v1/all-audios/?skip=0&limit=10"
+curl "http://localhost:8000/api/v1/all-audios/"
 ```
 
 **Delete audio:** ✅
@@ -292,8 +291,6 @@ curl "http://localhost:8000/api/v1/all-audios/?skip=0&limit=10"
 ```bash
 curl -X DELETE "http://localhost:8000/api/v1/audios/1"
 ```
-
-Certainly! I'll update the user feedback markup based on the new implementation. Here's the revised version:
 
 ### User Feedback
 

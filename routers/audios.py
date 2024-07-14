@@ -1,7 +1,7 @@
 """ ./routers/audios.py"""
 
 from typing import List
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from database import get_db
@@ -12,8 +12,10 @@ router = APIRouter()
 
 
 @router.post("/audios/", response_model=AudioResponse)
-def create_audio(audio: AudioCreate, db: Session = Depends(get_db)):
-    return audio_service.create_audio(db, audio)
+def create_audio(
+    audio: AudioCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
+):
+    return audio_service.create_audio(db, audio, background_tasks)
 
 
 @router.get("/audios/{audio_id}", response_model=AudioResponse)
@@ -22,13 +24,17 @@ def get_audio(audio_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/audios/", response_model=List[AudioResponse])
-def get_audios(text_entry_id: int = Query(None), db: Session = Depends(get_db)):
-    return audio_service.get_audios(db, text_entry_id)
+def get_audios(
+    user_id: int = Query(None),
+    guest_id: int = Query(None),
+    db: Session = Depends(get_db),
+):
+    return audio_service.get_audios(db, user_id, guest_id)
 
 
 @router.get("/all-audios/", response_model=List[AudioResponse])
-def get_all_audios(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return audio_service.get_all_audios(db, skip, limit)
+def get_all_audios(db: Session = Depends(get_db)):
+    return audio_service.get_all_audios(db)
 
 
 @router.delete("/audios/{audio_id}")

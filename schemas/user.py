@@ -3,6 +3,12 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 from datetime import datetime
+from enum import Enum
+
+
+class UserRole(str, Enum):
+    ADMIN = "ADMIN"
+    REGULAR = "REGULAR"
 
 
 class PasswordVerification(BaseModel):
@@ -19,6 +25,7 @@ class UserCreate(BaseModel):
     password: str = Field(
         ..., description="The user's password", example="SecurePassword123"
     )
+    role: UserRole = Field(default=UserRole.REGULAR, description="The user's role")
 
 
 class UserUpdate(BaseModel):
@@ -31,6 +38,10 @@ class UserUpdate(BaseModel):
     password: Optional[str] = Field(
         None, description="The user's password", example="SecurePassword123"
     )
+    is_active: Optional[bool] = Field(
+        None, description="Whether the user account is active"
+    )
+    role: Optional[UserRole] = Field(None, description="The user's role")
 
     class Config:
         from_attributes = True
@@ -47,8 +58,13 @@ class UserResponse(BaseModel):
     two_factor_enabled: bool = Field(
         ..., description="Whether two-factor authentication is enabled"
     )
+    is_active: bool = Field(..., description="Whether the user account is active")
+    role: UserRole = Field(..., description="The user's role")
     created_at: datetime = Field(
         ..., description="The date and time when the user was created"
+    )
+    updated_at: datetime = Field(
+        ..., description="The date and time when the user was last updated"
     )
     last_login: Optional[datetime] = Field(
         None, description="The last login time of the user"

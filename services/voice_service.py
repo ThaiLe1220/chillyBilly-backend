@@ -56,8 +56,8 @@ async def process_voice(db: Session, voice_id: int):
         return
 
     try:
-        # Wait for 30 seconds
-        await asyncio.sleep(30)
+        # Wait for 10 seconds
+        await asyncio.sleep(10)
 
         # Update voice status
         voice.status = "ready"

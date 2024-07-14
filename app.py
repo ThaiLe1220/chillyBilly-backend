@@ -27,7 +27,7 @@ app.include_router(user_profiles.router, prefix="/api/v1", tags=["user_profiles"
 app.include_router(text_entries.router, prefix="/api/v1", tags=["text_entries"])
 app.include_router(audios.router, prefix="/api/v1", tags=["audios"])
 app.include_router(voices.router, prefix="/api/v1", tags=["voices"])
-app.include_router(user_feedbacks.router, prefix="/api/v1", tags=["user_feedbacks"])
+# app.include_router(user_feedbacks.router, prefix="/api/v1", tags=["user_feedbacks"])
 
 if __name__ == "__main__":
     import uvicorn
