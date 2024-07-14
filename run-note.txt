@@ -1,56 +1,56 @@
-curl -X POST "http://localhost:8000/api/v1/users/" \
+curl -X POST "https://face-swap.12pmtech.link/api/v1/users/" \
      -H "Content-Type: application/json" \
      -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220", "role":"REGULAR"}'
-curl -X POST "http://localhost:8000/api/v1/users/" \
+curl -X POST "https://face-swap.12pmtech.link/api/v1/users/" \
      -H "Content-Type: application/json" \
      -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove", "role":"ADMIN"}'
-curl -s "http://localhost:8000/api/v1/users/" | jq '.'
-curl -s "http://localhost:8000/api/v1/users/1" | jq '.'
-curl -X PUT "http://localhost:8000/api/v1/users/1" \
+curl -s "https://face-swap.12pmtech.link/api/v1/users/" | jq '.'
+curl -s "https://face-swap.12pmtech.link/api/v1/users/1" | jq '.'
+curl -X PUT "https://face-swap.12pmtech.link/api/v1/users/1" \
      -H "Content-Type: application/json" \
      -d '{"username":"eu", "email":"eu@ex.com", "password":"eu123", "is_active": true, "role":"ADMIN"}'
-curl -s -X POST "http://localhost:8000/api/v1/users/1/verify_password" \
+curl -s -X POST "https://face-swap.12pmtech.link/api/v1/users/1/verify_password" \
      -H "Content-Type: application/json" \
      -d '{"password":"eu123"}' | jq '.'
-curl -s -X DELETE "http://localhost:8000/api/v1/users/2" | jq '.'
-curl -s -X POST "http://localhost:8000/api/v1/users/1/profile/" \
+curl -s -X DELETE "https://face-swap.12pmtech.link/api/v1/users/2" | jq '.'
+curl -s -X POST "https://face-swap.12pmtech.link/api/v1/users/1/profile/" \
      -H "Content-Type: application/json" \
      -d '{"first_name":"Thai", "last_name":"Le", "date_of_birth":"2000-12-13T04:30:00", "preferred_language":"en"}' | jq '.'
-curl -s "http://localhost:8000/api/v1/users/1/profile/" | jq '.'
-curl -s -X PUT "http://localhost:8000/api/v1/users/1/profile/" \
+curl -s "https://face-swap.12pmtech.link/api/v1/users/1/profile/" | jq '.'
+curl -s -X PUT "https://face-swap.12pmtech.link/api/v1/users/1/profile/" \
      -H "Content-Type: application/json" \
      -d '{"first_name":"Eugene", "last_name":"LiuLiu"}' | jq '.'
 
 
 
 for i in {1..5}; do
-    curl -s -X POST "http://localhost:8000/api/v1/guests" | jq '.'
+    curl -s -X POST "https://face-swap.12pmtech.link/api/v1/guests" | jq '.'
 done
-curl -s "http://localhost:8000/api/v1/guests" | jq '.'
-curl -s "http://localhost:8000/api/v1/guests/1" | jq '.'
-curl -X PUT "http://localhost:8000/api/v1/guests/1" | jq '.'
-curl -X DELETE "http://localhost:8000/api/v1/guests/2" | jq '.'
-curl -X DELETE "http://localhost:8000/api/v1/guests/cleanup/" | jq '.'
+curl -s "https://face-swap.12pmtech.link/api/v1/guests" | jq '.'
+curl -s "https://face-swap.12pmtech.link/api/v1/guests/1" | jq '.'
+curl -X PUT "https://face-swap.12pmtech.link/api/v1/guests/1" | jq '.'
+curl -X DELETE "https://face-swap.12pmtech.link/api/v1/guests/2" | jq '.'
+curl -X DELETE "https://face-swap.12pmtech.link/api/v1/guests/cleanup/" | jq '.'
 
 
 
-curl -X POST "http://localhost:8000/api/v1/text_entries/" \
+curl -X POST "https://face-swap.12pmtech.link/api/v1/text_entries/" \
      -H "Content-Type: application/json" \
      -d '{"content":"Hello, world!", "language":"en", "user_id":1}' | jq '.'
-curl -X POST "http://localhost:8000/api/v1/text_entries/" \
+curl -X POST "https://face-swap.12pmtech.link/api/v1/text_entries/" \
      -H "Content-Type: application/json" \
      -d '{"content":"Hello from guest!", "language":"en", "guest_id":1}' | jq '.'
-curl "http://localhost:8000/api/v1/users/1/text_entries/" | jq '.'
-curl "http://localhost:8000/api/v1/text_entries/?user_id=1" | jq '.'
-curl "http://localhost:8000/api/v1/guests/1/text_entries/" | jq '.'
-curl "http://localhost:8000/api/v1/text_entries/?guest_id=1" | jq '.'
-curl "http://localhost:8000/api/v1/all_text_entries/" | jq '.'
-curl -X DELETE "http://localhost:8000/api/v1/text_entries/2"  | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/users/1/text_entries/" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/text_entries/?user_id=1" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/guests/1/text_entries/" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/text_entries/?guest_id=1" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/all_text_entries/" | jq '.'
+curl -X DELETE "https://face-swap.12pmtech.link/api/v1/text_entries/2"  | jq '.'
 
 
 
-curl -X POST "http://localhost:8000/api/v1/voices/create_defaults/" | jq '.'
-curl -X POST "http://localhost:8000/api/v1/users/1/voices/" \
+curl -X POST "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/" | jq '.'
+curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/voices/" \
   -H "Content-Type: application/json" \
   -d '{
     "voice_name": "MyVoice",
@@ -58,11 +58,11 @@ curl -X POST "http://localhost:8000/api/v1/users/1/voices/" \
     "language": "en",
     "description": "My custom voice"
   }' | jq '.'
-curl "http://localhost:8000/api/v1/voices/?skip=0&limit=10" | jq '.'
-curl "http://localhost:8000/api/v1/users/1/voices/?skip=0&limit=10" | jq '.'
-curl "http://localhost:8000/api/v1/voices/1" | jq '.'
-curl "http://localhost:8000/api/v1/voices/5" | jq '.'
-curl -X PUT "http://localhost:8000/api/v1/users/1/voices/5" \
+curl "https://face-swap.12pmtech.link/api/v1/voices/?skip=0&limit=10" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/users/1/voices/?skip=0&limit=10" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/voices/1" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/voices/5" | jq '.'
+curl -X PUT "https://face-swap.12pmtech.link/api/v1/users/1/voices/5" \
      -H "Content-Type: application/json" \
      -d '{
          "voice_name": "Updated Voice Name",
@@ -73,26 +73,39 @@ curl -X PUT "http://localhost:8000/api/v1/users/1/voices/5" \
 
 
 
-curl -X POST "http://localhost:8000/api/v1/audios/" \
+curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
      -H "Content-Type: application/json" \
      -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
 
-curl -X POST "http://localhost:8000/api/v1/audios/" \
+curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
      -H "Content-Type: application/json" \
      -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
-curl "http://localhost:8000/api/v1/audios/1" | jq '.'
-curl "http://localhost:8000/api/v1/audios/?user_id=1" | jq '.'
-curl "http://localhost:8000/api/v1/audios/?text_entry_id=1" | jq '.'
-curl "http://localhost:8000/api/v1/all-audios/?skip=0&limit=10" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/audios/1" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/audios/?user_id=1" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/audios/?text_entry_id=1" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/all-audios/?skip=0&limit=10" | jq '.'
 
 
 
-curl -X POST "http://localhost:8000/api/v1/users/1/feedback" \
+curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/feedback" \
      -H "Content-Type: application/json" \
      -d '{"audio_id": 1, "rating": 5, "comment": "Great audio quality!"}' | jq '.'
 
-curl "http://localhost:8000/api/v1/feedback/1" | jq '.'
-curl -X PUT "http://localhost:8000/api/v1/feedback/1" \
+curl "https://face-swap.12pmtech.link/api/v1/feedback/1" | jq '.'
+curl -X PUT "https://face-swap.12pmtech.link/api/v1/feedback/1" \
      -H "Content-Type: application/json" \
      -d '{"rating": 4, "comment": "Good audio, but could be better."}' | jq '.'
-     curl -X DELETE "http://localhost:8000/api/v1/feedback/1" | jq '.'
+
+
+
+sudo apt-get update
+sudo apt-get install docker.io docker-compose
+
+sudo service postgresql stop
+docker-compose down
+docker-compose up --build
+docker-compose ps
+
+
+cd backend
+uvicorn app:app --reload
