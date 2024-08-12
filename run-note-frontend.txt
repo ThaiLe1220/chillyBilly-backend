@@ -7,7 +7,15 @@ nvm --version
 nvm install --lts
 nvm use --lts
 
-npx create-react-app client
-cd client
-npm install axios
+npx create-react-app my-app
+cd my-app
+
+
+
+
+
+
+cd frontend/my-app
+npm install
+npm start
 
