@@ -3,7 +3,14 @@
 from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from schemas.user import UserCreate, UserUpdate, UserResponse, PasswordVerification
+from schemas.user import (
+    UserCreate,
+    UserUpdate,
+    UserResponse,
+    PasswordVerification,
+    UserLogin,
+    LoginResponse,
+)
 from services import user_service
 from database import get_db
 
@@ -46,3 +53,8 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 @router.get("/users/{user_id}", response_model=UserResponse)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     return user_service.get_user(db, user_id)
+
+
+@router.post("/login", response_model=LoginResponse)
+def login(user_login: UserLogin, db: Session = Depends(get_db)):
+    return user_service.login_user(db, user_login.username, user_login.password)

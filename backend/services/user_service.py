@@ -163,3 +163,42 @@ def get_user(db: Session, user_id: int) -> UserResponse:
         last_login=db_user.last_login,
         last_active_date=db_user.last_active_date,
     )
+
+
+from fastapi import HTTPException
+from datetime import datetime, timedelta
+import jwt
+
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def login_user(db: Session, username: str, password: str):
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+
+    try:
+        verify_user_password(db, user.id, password)
+    except HTTPException:
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    user.last_login = datetime.utcnow()
+    db.commit()
+    return {"access_token": access_token, "token_type": "bearer", "user": user}

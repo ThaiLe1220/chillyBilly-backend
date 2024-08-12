@@ -9,3 +9,7 @@ sqlalchemy
 pydantic
 psycopg2-binary
 python-dotenv
+pydantic[email]
+fastapi-cors
+python-jose[cryptography]
+PyJWT

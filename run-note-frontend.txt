@@ -1,0 +1,13 @@
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+mkdir -p /home/ubuntu/.npm-global/lib
+npm config get prefix
+npm config set prefix '/home/ubuntu/.npm-global'
+nvm --version
+
+nvm install --lts
+nvm use --lts
+
+npx create-react-app client
+cd client
+npm install axios
+

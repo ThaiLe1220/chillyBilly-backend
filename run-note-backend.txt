@@ -1,6 +1,10 @@
 curl -X POST "https://face-swap.12pmtech.link/api/v1/users/" \
      -H "Content-Type: application/json" \
      -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220", "role":"REGULAR"}'
+curl -X POST "https://face-swap.12pmtech.link/api/v1/login" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"eugene", "password":"thai1220"}'
+     
 curl -X POST "https://face-swap.12pmtech.link/api/v1/users/" \
      -H "Content-Type: application/json" \
      -d '{"username":"mrdnlove", "email":"thailehong1220@yahoo.com", "password":"mrdnlove", "role":"ADMIN"}'
@@ -20,7 +24,6 @@ curl -s "https://face-swap.12pmtech.link/api/v1/users/1/profile/" | jq '.'
 curl -s -X PUT "https://face-swap.12pmtech.link/api/v1/users/1/profile/" \
      -H "Content-Type: application/json" \
      -d '{"first_name":"Eugene", "last_name":"LiuLiu"}' | jq '.'
-
 
 
 for i in {1..5}; do
@@ -102,8 +105,11 @@ sudo apt-get update
 sudo apt-get install docker.io docker-compose
 
 sudo service postgresql stop
+
 docker-compose down
-docker-compose up --build
+docker-compose build
+docker-compose up
+
 docker-compose ps
 
 

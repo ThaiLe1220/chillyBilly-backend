@@ -75,3 +75,16 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserLogin(BaseModel):
+    username: str = Field(..., description="The user's username", example="johndoe")
+    password: str = Field(
+        ..., description="The user's password", example="SecurePassword123"
+    )
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
