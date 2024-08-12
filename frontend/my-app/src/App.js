@@ -80,7 +80,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Face Swap User Management</h1>
+      <h1> User Management</h1>
       <p>Welcome, Admin {currentUser.username}!</p>
       <button onClick={handleLogout}>Logout</button>
       <UpdateUserForm onUpdateUser={handleUpdateUser} />
