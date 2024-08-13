@@ -1,22 +1,50 @@
-// ./frontend/my-app/src/components/RegularUserView.js
+import React, { useState, useEffect, useCallback } from "react";
+import ProfileManager from "./ProfileManager";
+import TextEntryManager from "./TextEntryManager";
+import UserVoiceManager from "./UserVoiceManager";
+import AudioManager from "./AudioManager";
+import * as api from "../services/api";
 
-import React from 'react';
+const RegularUserView = ({ user }) => {
+  const [textEntries, setTextEntries] = useState([]);
+  const [voices, setVoices] = useState([]);
 
-function RegularUserView({ user }) {
+  const fetchTextEntries = useCallback(async () => {
+    try {
+      const response = await api.getUserTextEntries(user.id);
+      setTextEntries(response.data);
+    } catch (error) {
+      console.error("Error fetching text entries:", error);
+    }
+  }, [user.id]);
+
+  const fetchVoices = useCallback(async () => {
+    try {
+      const response = await api.getAllVoices();
+      setVoices(response.data);
+    } catch (error) {
+      console.error("Error fetching voices:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTextEntries();
+    fetchVoices();
+  }, [fetchTextEntries, fetchVoices]); // Include the functions in the dependency array
+
   return (
     <div>
-      <h2>Welcome, {user.username}!</h2>
-      <p>User Information:</p>
-      <ul>
-        <li>ID: {user.id}</li>
-        <li>Email: {user.email}</li>
-        <li>Role: {user.role}</li>
-        <li>Active: {user.is_active ? 'Yes' : 'No'}</li>
-        <li>Created At: {new Date(user.created_at).toLocaleString()}</li>
-        <li>Last Login: {user.last_login ? new Date(user.last_login).toLocaleString() : 'N/A'}</li>
-      </ul>
+      <h1>Welcome, {user.username}!</h1>
+      <ProfileManager userId={user.id} />
+      <TextEntryManager userId={user.id} />
+      <UserVoiceManager userId={user.id} />
+      <AudioManager
+        userId={user.id}
+        textEntries={textEntries}
+        voices={voices}
+      />
     </div>
   );
-}
+};
 
 export default RegularUserView;

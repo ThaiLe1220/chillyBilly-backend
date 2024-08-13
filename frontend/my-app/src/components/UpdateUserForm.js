@@ -1,29 +1,29 @@
 // ./frontend/my-app/src/components/UpdateUserForm.js
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 function UpdateUserForm({ onUpdateUser }) {
   const [updateUser, setUpdateUser] = useState({
-    id: '',
-    username: '',
-    email: '',
-    password: '',
+    id: "",
+    username: "",
+    email: "",
+    password: "",
     two_factor_enabled: false,
     is_active: true,
-    role: 'REGULAR'
+    role: "REGULAR",
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onUpdateUser(updateUser);
     setUpdateUser({
-      id: '',
-      username: '',
-      email: '',
-      password: '',
+      id: "",
+      username: "",
+      email: "",
+      password: "",
       two_factor_enabled: false,
       is_active: true,
-      role: 'REGULAR'
+      role: "REGULAR",
     });
   };
 
@@ -41,26 +41,37 @@ function UpdateUserForm({ onUpdateUser }) {
           type="text"
           placeholder="Username"
           value={updateUser.username}
-          onChange={(e) => setUpdateUser({ ...updateUser, username: e.target.value })}
+          onChange={(e) =>
+            setUpdateUser({ ...updateUser, username: e.target.value })
+          }
         />
         <input
           type="email"
           placeholder="Email"
           value={updateUser.email}
-          onChange={(e) => setUpdateUser({ ...updateUser, email: e.target.value })}
+          onChange={(e) =>
+            setUpdateUser({ ...updateUser, email: e.target.value })
+          }
         />
         <input
           type="password"
           placeholder="Password"
           value={updateUser.password}
-          onChange={(e) => setUpdateUser({ ...updateUser, password: e.target.value })}
+          onChange={(e) =>
+            setUpdateUser({ ...updateUser, password: e.target.value })
+          }
         />
         <label>
           Two Factor Enabled:
           <input
             type="checkbox"
             checked={updateUser.two_factor_enabled}
-            onChange={(e) => setUpdateUser({ ...updateUser, two_factor_enabled: e.target.checked })}
+            onChange={(e) =>
+              setUpdateUser({
+                ...updateUser,
+                two_factor_enabled: e.target.checked,
+              })
+            }
           />
         </label>
         <label>
@@ -68,12 +79,16 @@ function UpdateUserForm({ onUpdateUser }) {
           <input
             type="checkbox"
             checked={updateUser.is_active}
-            onChange={(e) => setUpdateUser({ ...updateUser, is_active: e.target.checked })}
+            onChange={(e) =>
+              setUpdateUser({ ...updateUser, is_active: e.target.checked })
+            }
           />
         </label>
         <select
           value={updateUser.role}
-          onChange={(e) => setUpdateUser({ ...updateUser, role: e.target.value })}
+          onChange={(e) =>
+            setUpdateUser({ ...updateUser, role: e.target.value })
+          }
         >
           <option value="REGULAR">Regular</option>
           <option value="ADMIN">Admin</option>

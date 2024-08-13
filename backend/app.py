@@ -27,7 +27,7 @@ logger.debug(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
 logger.debug(f"Current working directory: {os.getcwd()}")
 
 # Drop all tables - careful with this
-Base.metadata.drop_all(bind=engine)
+# Base.metadata.drop_all(bind=engine)
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
