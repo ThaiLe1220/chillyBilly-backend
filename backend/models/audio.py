@@ -28,6 +28,7 @@ class Audio(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=True, index=True)
     guest_id = Column(Integer, ForeignKey("guest.id"), nullable=True, index=True)
+    tab_generation_id = Column(Integer, ForeignKey("tab_generation.id"), nullable=True, index=True)
     text_entry_id = Column(
         Integer, ForeignKey("text_entry.id"), nullable=False, index=True
     )
@@ -46,6 +47,7 @@ class Audio(Base):
     user_feedback = relationship(
         "UserFeedback", back_populates="audio", cascade="all, delete-orphan"
     )
+    tab_generation = relationship("TabGeneration", back_populates="audio", uselist=False)
 
     __table_args__ = (
         CheckConstraint(

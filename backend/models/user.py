@@ -54,6 +54,7 @@ class User(Base):
     user_feedback = relationship(
         "UserFeedback", back_populates="user", cascade="all, delete-orphan"
     )
+    tab = relationship("Tab", back_populates="user", cascade="all, delete-orphan")
 
     __table_args__ = (
         UniqueConstraint("username", name="uq_username"),

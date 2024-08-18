@@ -7,3 +7,5 @@ from .audio import Audio
 from .voice import Voice
 from .user_feedback import UserFeedback
 from .guest import Guest
+from .tab import Tab
+from .tab_generation import TabGeneration
