@@ -129,5 +129,5 @@ def read_tab_generation(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while retrieving the tab generation",
+            detail=f"An error occurred while retrieving tab generation: {str(e)}"
         ) from e
