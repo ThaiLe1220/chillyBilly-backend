@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from schemas.tab_generation import TabGenerationCreate, TabGenerationResponse
-from services.tab_generation_service import create_tab_generation, get_tab_generation, get_all_tab_generations, verify_user_exists, verify_tab_exists, get_tab_generation_1st
+from services.tab_generation_service import create_tab_generation, get_all_tab_generations_of_a_tab, get_all_tab_generations_of_user, get_tab_generation, get_tab_generation_1st, verify_user_exists, verify_tab_exists
 from database import get_db
 from models import User, Tab
 
@@ -26,9 +26,34 @@ def create_new_tab_generation(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while creating the tab generation: {str(e)}",
         ) from e
+    
+@router.get("/users/{user_id}/tab_generations/", response_model=List[TabGenerationResponse])
+def read_all_tab_generations_of_user(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    try:
+        if not verify_user_exists(user_id, db):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        tab_generations = get_all_tab_generations_of_user(user_id, db)
+
+        return tab_generations
+    except HTTPException as e:
+        # Re-raise HTTPExceptions to avoid double-wrapping
+        raise e
+    except Exception as e:
+        # Handle any unexpected errors
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while retrieving tab generations: {str(e)}"
+        ) from e
         
 @router.get("/users/{user_id}/tabs/{tab_id}/tab_generations/", response_model=List[TabGenerationResponse])
-def read_all_tab_generations(
+def read_all_tab_generations_of_a_tab(
     user_id: int,
     tab_id: int,
     db: Session = Depends(get_db)
@@ -49,7 +74,7 @@ def read_all_tab_generations(
             )
 
         # Fetch all tab generations for the given user and tab
-        tab_generations = get_all_tab_generations(user_id, tab_id, db)
+        tab_generations = get_all_tab_generations_of_a_tab(user_id, tab_id, db)
         
         return tab_generations
     except HTTPException as e:

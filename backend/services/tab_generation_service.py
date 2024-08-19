@@ -60,7 +60,30 @@ def create_tab_generation(
             db.rollback()
         raise Exception(f"Error creating tab generation: {str(e)}")
     
-def get_all_tab_generations(user_id: int, tab_id: int, db: Session) -> List[TabGenerationResponse]:
+def get_all_tab_generations_of_user(user_id: int, db: Session) -> List[TabGenerationResponse]:
+    try:
+        tab_generations = (
+            db.query(TabGeneration)
+            .join(Tab, TabGeneration.tab_id == Tab.id)
+            .filter(Tab.user_id == user_id)
+            .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
+            .all()
+        )
+
+        # Return the list of TabGenerationResponse objects with concatenated TextEntry content
+        return [
+            TabGenerationResponse(
+                id=tab_generation.id,
+                tab_id=tab_generation.tab_id,
+                created_at=tab_generation.created_at,
+                text_entry_content=" ".join(entry.content for entry in tab_generation.text_entry) if tab_generation.text_entry else None
+            )
+            for tab_generation in tab_generations
+        ]
+    except Exception as e:
+        raise Exception(f"An error occurred while retrieving tab generations: {e}")
+    
+def get_all_tab_generations_of_a_tab(user_id: int, tab_id: int, db: Session) -> List[TabGenerationResponse]:
     try:
         # Query tab generations filtered by user_id and tab_id, explicitly joining with TextEntry
         tab_generations = (
