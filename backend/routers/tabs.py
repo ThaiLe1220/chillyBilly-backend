@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from services import tab_service
-from schemas.tab import TabResponse, TabCreate
+from schemas.tab import TabResponse, TabCreate, TabUpdateName
 from database import get_db
 
 router = APIRouter()
@@ -48,3 +48,11 @@ def delete_existing_tab(user_id: int, tab_id: int, db: Session = Depends(get_db)
     if not success:
         raise HTTPException(status_code=404, detail="Tab not found or error deleting tab")
     return {"detail": "Tab deleted successfully"}
+
+# Update tab name
+@router.put("/users/{user_id}/tabs/{tab_id}", response_model=TabResponse)
+def update_tab_name(user_id: int, tab_id: int, tab_update: TabUpdateName, db: Session = Depends(get_db)):
+    updated_tab = tab_service.update_tab_name(user_id, tab_id, tab_update.tab_name, db)
+    if not updated_tab:
+        raise HTTPException(status_code=404, detail="Tab not found")
+    return updated_tab

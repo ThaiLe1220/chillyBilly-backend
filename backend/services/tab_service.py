@@ -73,3 +73,12 @@ def delete_tab(user_id: int, tab_id: int, db: Session) -> bool:
         db.commit()
         return True
     return False
+
+def update_tab_name(user_id: int, tab_id: int, new_tab_name: str, db: Session) -> Tab:
+    tab = db.query(Tab).filter(Tab.user_id == user_id, Tab.id == tab_id).first()
+    if not tab:
+        return None
+    tab.tab_name = new_tab_name
+    db.commit()
+    db.refresh(tab)
+    return tab

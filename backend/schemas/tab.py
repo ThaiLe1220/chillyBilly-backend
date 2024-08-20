@@ -27,3 +27,6 @@ class  TabResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
+class TabUpdateName(BaseModel):
+    tab_name: str
