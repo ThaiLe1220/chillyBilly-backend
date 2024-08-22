@@ -264,7 +264,7 @@ curl -X DELETE "https://face-swap.12pmtech.link/api/v1/users/1/voices/5"
 ```bash
 curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
      -H "Content-Type: application/json" \
-     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
+     -d '{"text_entry_id":1, "voice_id":1}'
 ```
 
 **Get specific audio:** ✅

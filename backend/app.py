@@ -27,7 +27,7 @@ logger.debug(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
 logger.debug(f"Current working directory: {os.getcwd()}")
 
 # Drop all tables - careful with this
-# Base.metadata.drop_all(bind=engine)
+Base.metadata.drop_all(bind=engine)
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -50,6 +50,13 @@ app.include_router(text_entries.router, prefix="/api/v1", tags=["text_entries"])
 app.include_router(audios.router, prefix="/api/v1", tags=["audios"])
 app.include_router(voices.router, prefix="/api/v1", tags=["voices"])
 app.include_router(user_feedbacks.router, prefix="/api/v1", tags=["user_feedbacks"])
+
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
 
 if __name__ == "__main__":
     import uvicorn

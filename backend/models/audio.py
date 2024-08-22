@@ -32,12 +32,17 @@ class Audio(Base):
         Integer, ForeignKey("text_entry.id"), nullable=False, index=True
     )
     voice_id = Column(Integer, ForeignKey("voice.id"), nullable=True)
-    file_path = Column(String, nullable=False)
-    file_size = Column(Integer, nullable=True)  # in bytes
-    duration = Column(Float, nullable=False)
+    file_path = Column(String, nullable=True)
+    file_size = Column(Integer, nullable=True)
+    duration = Column(Float, nullable=True)
     status = Column(Enum(AudioStatus), default=AudioStatus.PROCESSING, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    mime_type = Column(String, nullable=True)
+    sample_rate = Column(Integer, nullable=True)
+    file_url = Column(String, nullable=True)
+    delete_url = Column(String, nullable=True)
 
     user = relationship("User", back_populates="audio")
     guest = relationship("Guest", back_populates="audio")

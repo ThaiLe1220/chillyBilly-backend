@@ -161,14 +161,10 @@ def delete_voice(db: Session, user_id: int, voice_id: int) -> dict:
 
 def create_default_voices(db: Session, base_path: str) -> list[VoiceResponse]:
     default_voices = [
-        {"voice_name": "Default English Male", "language": "en", "gender": "male"},
-        {"voice_name": "Default English Female", "language": "en", "gender": "female"},
-        {"voice_name": "Default Vietnamese Male", "language": "vi", "gender": "male"},
-        {
-            "voice_name": "Default Vietnamese Female",
-            "language": "vi",
-            "gender": "female",
-        },
+        {"voice_name": "default_en_male", "language": "en", "gender": "male"},
+        {"voice_name": "default_en_female", "language": "en", "gender": "female"},
+        {"voice_name": "default_vi_male", "language": "vi", "gender": "male"},
+        {"voice_name": "default_vi_female", "language": "vi", "gender": "female"},
     ]
 
     created_voices = []

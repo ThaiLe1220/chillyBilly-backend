@@ -12,34 +12,34 @@ router = APIRouter()
 
 
 @router.post("/audios/", response_model=AudioResponse)
-def create_audio(
+async def create_audio(
     audio: AudioCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
 ):
-    return audio_service.create_audio(db, audio, background_tasks)
+    return await audio_service.create_audio(db, audio, background_tasks)
 
 
 @router.get("/audios/{audio_id}", response_model=AudioResponse)
-def get_audio(audio_id: int, db: Session = Depends(get_db)):
-    return audio_service.get_audio(db, audio_id)
+async def get_audio(audio_id: int, db: Session = Depends(get_db)):
+    return await audio_service.get_audio(db, audio_id)
 
 
 @router.get("/audios/", response_model=List[AudioResponse])
-def get_audios(
+async def get_audios(
     user_id: int = Query(None),
     guest_id: int = Query(None),
     db: Session = Depends(get_db),
 ):
-    return audio_service.get_audios(db, user_id, guest_id)
+    return await audio_service.get_audios(db, user_id, guest_id)
 
 
 @router.get("/all-audios/", response_model=List[AudioResponse])
-def get_all_audios(db: Session = Depends(get_db)):
-    return audio_service.get_all_audios(db)
+async def get_all_audios(db: Session = Depends(get_db)):
+    return await audio_service.get_all_audios(db)
 
 
 @router.delete("/audios/{audio_id}")
-def delete_audio(audio_id: int, db: Session = Depends(get_db)):
-    deleted_id = audio_service.delete_audio(db, audio_id)
+async def delete_audio(audio_id: int, db: Session = Depends(get_db)):
+    deleted_id = await audio_service.delete_audio(db, audio_id)
     return JSONResponse(
         status_code=200,
         content={"message": "Audio deleted successfully", "deleted_id": deleted_id},

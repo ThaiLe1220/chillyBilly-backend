@@ -13,3 +13,4 @@ pydantic[email]
 fastapi-cors
 python-jose[cryptography]
 PyJWT
+httpx

@@ -1,15 +1,18 @@
 """ ./backend/services/audio_service.py"""
 
-import asyncio
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, BackgroundTasks
 from models import Audio, TextEntry, Voice
 from schemas.audio import AudioCreate, AudioResponse, AudioStatus
 from typing import List, Optional
-from database import SessionLocal  # Import your database session creator
+import httpx
+import os
 
 
-def create_audio(
+TTS_API_URL = os.getenv("TTS_API_URL", "http://localhost:8080")
+
+
+async def create_audio(
     db: Session, audio: AudioCreate, background_tasks: BackgroundTasks
 ) -> AudioResponse:
     text_entry = db.query(TextEntry).filter(TextEntry.id == audio.text_entry_id).first()
@@ -41,24 +44,80 @@ def create_audio(
     if voice.status != "ready":
         raise HTTPException(status_code=400, detail="Voice is not ready for use")
 
-    # Create the audio object with user_id and guest_id from the text entry
-    db_audio = Audio(
-        text_entry_id=audio.text_entry_id,
-        voice_id=voice_id,
-        file_path=audio.file_path,
-        duration=audio.duration,
-        file_size=audio.file_size,
-        user_id=text_entry.user_id,
-        guest_id=text_entry.guest_id,
-        status=AudioStatus.PROCESSING,
-    )
+    # Prepare data for local TTS API
+    tts_data = {
+        "text": text_entry.content,
+        "lang": text_entry.language,
+        "voice_name": voice.voice_name,
+        "user_id": (
+            str(text_entry.user_id) if text_entry.user_id else str(text_entry.guest_id)
+        ),
+        "user_type": "user" if text_entry.user_id else "guest",
+        "preset": "ultra_fast",
+    }
 
-    db.add(db_audio)
-    db.commit()
-    db.refresh(db_audio)
+    try:
+        # Call local TTS API
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{TTS_API_URL}/generate_audio", json=tts_data, timeout=30.0
+            )
+            response.raise_for_status()
+            tts_result = response.json()
 
-    # Start audio processing in the background
-    background_tasks.add_task(process_audio, db_audio.id)
+        # Create the audio object with the results from the TTS API
+        db_audio = Audio(
+            text_entry_id=audio.text_entry_id,
+            voice_id=voice_id,
+            file_path=tts_result["audio_path"],
+            duration=tts_result["audio_duration"],
+            file_size=tts_result["audio_size"],
+            user_id=text_entry.user_id,
+            guest_id=text_entry.guest_id,
+            status=AudioStatus.READY,
+            mime_type=tts_result["mime_type"],
+            sample_rate=tts_result["sample_rate"],
+            file_url=tts_result["file_url"],
+            delete_url=tts_result["delete_url"],
+        )
+
+        db.add(db_audio)
+        db.commit()
+        db.refresh(db_audio)
+
+    except httpx.HTTPError as e:
+        # Handle HTTP errors from the TTS API
+        error_detail = f"TTS API error: {str(e)}"
+        print(error_detail)  # Log the error
+        db_audio = Audio(
+            text_entry_id=audio.text_entry_id,
+            voice_id=voice_id,
+            file_path="error",
+            user_id=text_entry.user_id,
+            guest_id=text_entry.guest_id,
+            status=AudioStatus.FAILED,
+        )
+        db.add(db_audio)
+        db.commit()
+        db.refresh(db_audio)
+        raise HTTPException(status_code=500, detail=error_detail) from e
+
+    except Exception as e:
+        # Handle other exceptions
+        error_detail = f"Unexpected error during audio processing: {str(e)}"
+        print(error_detail)  # Log the error
+        db_audio = Audio(
+            text_entry_id=audio.text_entry_id,
+            voice_id=voice_id,
+            file_path="error",
+            user_id=text_entry.user_id,
+            guest_id=text_entry.guest_id,
+            status=AudioStatus.FAILED,
+        )
+        db.add(db_audio)
+        db.commit()
+        db.refresh(db_audio)
+        raise HTTPException(status_code=500, detail=error_detail) from e
 
     return AudioResponse(
         id=db_audio.id,
@@ -70,36 +129,14 @@ def create_audio(
         status=db_audio.status.value,
         created_at=db_audio.created_at,
         updated_at=db_audio.updated_at,
+        mime_type=db_audio.mime_type,
+        sample_rate=db_audio.sample_rate,
+        file_url=db_audio.file_url,
+        delete_url=db_audio.delete_url,
     )
 
 
-async def process_audio(audio_id: int):
-    # Create a new database session for this background task
-    db = SessionLocal()
-    try:
-        audio = db.query(Audio).filter(Audio.id == audio_id).first()
-        if not audio:
-            print(f"Audio with id {audio_id} not found")
-            return
-
-        # Wait for 10 seconds (simulating audio processing)
-        await asyncio.sleep(10)
-
-        # Update audio status
-        audio.status = AudioStatus.READY
-        db.commit()
-        print(f"Audio processing completed for audio id {audio_id}")
-
-    except Exception as e:
-        # If any error occurs during processing, update status to failed
-        audio.status = AudioStatus.FAILED
-        db.commit()
-        print(f"Audio processing failed for audio id {audio_id}: {str(e)}")
-    finally:
-        db.close()
-
-
-def get_audio(db: Session, audio_id: int) -> AudioResponse:
+async def get_audio(db: Session, audio_id: int) -> AudioResponse:
     db_audio = db.query(Audio).filter(Audio.id == audio_id).first()
     if db_audio is None:
         raise HTTPException(status_code=404, detail="Audio not found")
@@ -113,10 +150,14 @@ def get_audio(db: Session, audio_id: int) -> AudioResponse:
         status=db_audio.status.value,
         created_at=db_audio.created_at,
         updated_at=db_audio.updated_at,
+        mime_type=db_audio.mime_type,
+        sample_rate=db_audio.sample_rate,
+        file_url=db_audio.file_url,
+        delete_url=db_audio.delete_url,
     )
 
 
-def get_audios(
+async def get_audios(
     db: Session, user_id: Optional[int] = None, guest_id: Optional[int] = None
 ) -> List[AudioResponse]:
     query = db.query(Audio)
@@ -136,12 +177,16 @@ def get_audios(
             status=audio.status.value,
             created_at=audio.created_at,
             updated_at=audio.updated_at,
+            mime_type=audio.mime_type,
+            sample_rate=audio.sample_rate,
+            file_url=audio.file_url,
+            delete_url=audio.delete_url,
         )
         for audio in db_audios
     ]
 
 
-def get_all_audios(db: Session) -> List[AudioResponse]:
+async def get_all_audios(db: Session) -> List[AudioResponse]:
     db_audios = db.query(Audio).all()
     return [
         AudioResponse(
@@ -154,15 +199,28 @@ def get_all_audios(db: Session) -> List[AudioResponse]:
             status=audio.status.value,
             created_at=audio.created_at,
             updated_at=audio.updated_at,
+            mime_type=audio.mime_type,
+            sample_rate=audio.sample_rate,
+            file_url=audio.file_url,
+            delete_url=audio.delete_url,
         )
         for audio in db_audios
     ]
 
 
-def delete_audio(db: Session, audio_id: int) -> int:
+async def delete_audio(db: Session, audio_id: int) -> int:
     db_audio = db.query(Audio).filter(Audio.id == audio_id).first()
     if db_audio is None:
         raise HTTPException(status_code=404, detail="Audio not found")
+
+    # Delete the audio file using the delete_url
+    async with httpx.AsyncClient() as client:
+        response = await client.delete(db_audio.delete_url)
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=500, detail="Failed to delete audio file from storage"
+            )
+
     db.delete(db_audio)
     db.commit()
     return audio_id

@@ -26,7 +26,7 @@ curl -s -X PUT "https://face-swap.12pmtech.link/api/v1/users/1/profile/" \
      -d '{"first_name":"Eugene", "last_name":"LiuLiu"}' | jq '.'
 
 
-for i in {1..5}; do
+for i in {1..3}; do
     curl -s -X POST "https://face-swap.12pmtech.link/api/v1/guests" | jq '.'
 done
 curl -s "https://face-swap.12pmtech.link/api/v1/guests" | jq '.'
@@ -75,14 +75,9 @@ curl -X PUT "https://face-swap.12pmtech.link/api/v1/users/1/voices/5" \
      }' | jq '.'
 
 
-
 curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
      -H "Content-Type: application/json" \
-     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
-
-curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
-     -H "Content-Type: application/json" \
-     -d '{"text_entry_id":1, "voice_id":1, "file_path":"/path/to/audio.mp3", "duration":3.5, "file_size":1048576}'
+     -d '{"text_entry_id":1, "voice_id":1}' | jq '.'
 curl "https://face-swap.12pmtech.link/api/v1/audios/1" | jq '.'
 curl "https://face-swap.12pmtech.link/api/v1/audios/?user_id=1" | jq '.'
 curl "https://face-swap.12pmtech.link/api/v1/audios/?text_entry_id=1" | jq '.'
@@ -106,8 +101,53 @@ sudo apt-get install docker.io docker-compose
 
 sudo service postgresql stop
 
+
 docker-compose down
+docker-compose down --remove-orphans
+
 docker-compose build
 docker-compose up
 
 docker-compose ps
+
+docker network ls
+docker network rm tts_app_default
+
+
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get update
+sudo apt-get install -y nvidia-docker2
+sudo apt-get install -y nvidia-container-toolkit
+sudo apt-get install nvidia-container-runtime
+
+sudo systemctl restart docker
+
+docker run --gpus all --rm nvidia/cuda:11.0-base nvidia-smi
+
+curl -X POST "https://face-swap.12pmtech.link/api/v1/users/" \
+     -H "Content-Type: application/json" \
+     -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220", "role":"REGULAR"}'
+curl -X POST "https://face-swap.12pmtech.link/api/v1/text_entries/" \
+     -H "Content-Type: application/json" \
+     -d '{"content":"Hello, world!", "language":"en", "user_id":1}' | jq '.'
+curl -X POST "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/" | jq '.'
+curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
+     -H "Content-Type: application/json" \
+     -d '{"text_entry_id":1, "voice_id":1}' | jq '.'
+
+
+curl -X POST http://127.0.0.1:8080/generate_audio \
+-H "Content-Type: application/json" \
+-d '{
+     "text": "Hello, world!",
+     "lang": "en",
+     "voice_name": "default_en_male",
+     "user_id": "user123",
+     "user_type": "user",
+     "preset": "ultra_fast"
+}'
+
+
+docker compose run tts-api nvcc --version

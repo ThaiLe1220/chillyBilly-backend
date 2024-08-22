@@ -1,4 +1,4 @@
-version: '3.8'
+# docker-compose.yml
 
 services:
   db:
@@ -9,6 +9,11 @@ services:
       POSTGRES_PASSWORD: tts_eugene
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tts_user -d tts_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
@@ -19,8 +24,44 @@ services:
       - "5000:5000"
     environment:
       - DATABASE_URL=postgresql://tts_user:tts_eugene@db/tts_app
+      - TTS_API_URL=http://tts_api:8080
     depends_on:
       - db
+      - tts_api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  tts_api:
+    build:
+      context: ./tts_api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./output:/app/output
+      - ./model_cache:/root/.cache/huggingface
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - TRANSFORMERS_VERBOSITY=info
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # Add healthcheck to monitor the application
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Increase timeout for container startup
+    stop_grace_period: 1m
 
 volumes:
   postgres_data:
