@@ -11,10 +11,12 @@ class TabGenerationBase(BaseModel):
 class TabGenerationCreate(TabGenerationBase):
     text_entry_content: Optional[str] = Field(None, description="Content for the associated text entry")
     language: str = Field(..., description="The language of the text entry", example="en")
+    voice_id: int = Field(..., description="ID of the voice")
 
 class TabGenerationResponse(TabGenerationBase):
     id: int = Field(..., description="Unique identifier of the tab generation")
     text_entry_content: Optional[str] = Field(None, description="Content of the associated text entry")
+    audio_name: Optional[str] = Field(None, description="The name of the audio")
 
     class Config:
         orm_mode = True

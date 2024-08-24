@@ -1,30 +1,33 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 from models.tab_generation import TabGeneration
+from fastapi import BackgroundTasks
 from models.text_entry import TextEntry
+from models.audio import Audio
 from models import User, Tab
 from schemas.tab_generation import TabGenerationCreate, TabGenerationResponse
 from schemas.text_entry import TextEntryCreate
-from services import text_entry_service
+from schemas.audio import AudioCreate
+from services import text_entry_service, audio_service
 from datetime import datetime
 from typing import Optional, List
+
 
 def verify_user_exists(user_id: int, db: Session) -> bool:
     return db.query(User).filter(User.id == user_id).first() is not None
 
+
 def verify_tab_exists(tab_id: int, db: Session) -> bool:
     return db.query(Tab).filter(Tab.id == tab_id).first() is not None
 
-def create_tab_generation(
-    user_id: int,
-    tab_id: int,
-    tab_generation_create: TabGenerationCreate,
-    db: Session
+
+async def create_tab_generation(
+    user_id: int, tab_id: int, tab_generation_create: TabGenerationCreate, db: Session
 ) -> TabGenerationResponse:
     # Verify that the user and tab exist
     if not verify_user_exists(user_id, db):
         raise ValueError("User not found")
-    
+
     if not verify_tab_exists(tab_id, db):
         raise ValueError("Tab not found")
 
@@ -32,41 +35,60 @@ def create_tab_generation(
         # Create TabGeneration first
         tab_generation = TabGeneration(
             tab_id=tab_generation_create.tab_id,
-            created_at=tab_generation_create.created_at or datetime.utcnow()
+            created_at=tab_generation_create.created_at or datetime.utcnow(),
         )
-        
+
         db.add(tab_generation)
         db.commit()
         db.refresh(tab_generation)
-        
+
         # Create TextEntry if provided
         if tab_generation_create.text_entry_content:
             text_entry_create = TextEntryCreate(
                 content=tab_generation_create.text_entry_content,
                 language=tab_generation_create.language,  # Default language or derived from request if needed
                 tab_generation_id=tab_generation.id,
-                user_id=user_id
+                user_id=user_id,
             )
-            text_entry_service.create_text_entry(db, text_entry_create)
-        
+            text_entry_created = text_entry_service.create_text_entry(
+                db, text_entry_create
+            )
+
+        if text_entry_created:
+            audio_created = await audio_service.create_audio(
+                db=db,
+                audio=AudioCreate(
+                    text_entry_id=text_entry_created.id,
+                    voice_id=tab_generation_create.voice_id,
+                    tab_generation_id=tab_generation.id,
+                ),
+                background_tasks=BackgroundTasks,
+            )
+
         return TabGenerationResponse(
             id=tab_generation.id,
             tab_id=tab_generation.tab_id,
             created_at=tab_generation.created_at,
-            text_entry_content=tab_generation_create.text_entry_content
+            text_entry_content=tab_generation_create.text_entry_content,
+            audio_name=audio_created.audio_name,
         )
     except Exception as e:
         if isinstance(db, Session):
             db.rollback()
         raise Exception(f"Error creating tab generation: {str(e)}")
-    
-def get_all_tab_generations_of_user(user_id: int, db: Session) -> List[TabGenerationResponse]:
+
+
+def get_all_tab_generations_of_user(
+    user_id: int, db: Session
+) -> List[TabGenerationResponse]:
     try:
         tab_generations = (
             db.query(TabGeneration)
             .join(Tab, TabGeneration.tab_id == Tab.id)
             .filter(Tab.user_id == user_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
+            .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
+            .filter(Audio.audio_name.isnot(None))
             .all()
         )
 
@@ -76,14 +98,26 @@ def get_all_tab_generations_of_user(user_id: int, db: Session) -> List[TabGenera
                 id=tab_generation.id,
                 tab_id=tab_generation.tab_id,
                 created_at=tab_generation.created_at,
-                text_entry_content=" ".join(entry.content for entry in tab_generation.text_entry) if tab_generation.text_entry else None
+                text_entry_content=(
+                    " ".join(entry.content for entry in tab_generation.text_entry)
+                    if tab_generation.text_entry
+                    else None
+                ),
+                audio_name=(
+                    "".join(audio.audio_name for audio in tab_generation.audio)
+                    if tab_generation.audio
+                    else None
+                ),
             )
             for tab_generation in tab_generations
         ]
     except Exception as e:
         raise Exception(f"An error occurred while retrieving tab generations: {e}")
-    
-def get_all_tab_generations_of_a_tab(user_id: int, tab_id: int, db: Session) -> List[TabGenerationResponse]:
+
+
+def get_all_tab_generations_of_a_tab(
+    user_id: int, tab_id: int, db: Session
+) -> List[TabGenerationResponse]:
     try:
         # Query tab generations filtered by user_id and tab_id, explicitly joining with TextEntry
         tab_generations = (
@@ -92,32 +126,45 @@ def get_all_tab_generations_of_a_tab(user_id: int, tab_id: int, db: Session) -> 
             .filter(Tab.user_id == user_id)
             .filter(TabGeneration.tab_id == tab_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
+            .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
+            .filter(Audio.audio_name.isnot(None))
             .all()
         )
-        
+
         # Return the list of TabGenerationResponse objects with concatenated TextEntry content
         return [
             TabGenerationResponse(
                 id=tab_generation.id,
                 tab_id=tab_generation.tab_id,
                 created_at=tab_generation.created_at,
-                text_entry_content=" ".join(entry.content for entry in tab_generation.text_entry) if tab_generation.text_entry else None
+                text_entry_content=(
+                    " ".join(entry.content for entry in tab_generation.text_entry)
+                    if tab_generation.text_entry
+                    else None
+                ),
+                audio_name=(
+                    "".join(audio.audio_name for audio in tab_generation.audio)
+                    if tab_generation.audio
+                    else None
+                ),
             )
             for tab_generation in tab_generations
         ]
     except Exception as e:
         raise Exception(f"An error occurred while retrieving tab generations: {e}")
-    
 
-def get_tab_generation(tab_generation_id: int, user_id: int, tab_id: int, db: Session) -> Optional[TabGenerationResponse]:
-    
-        # Verify that the user and tab exist
+
+def get_tab_generation(
+    tab_generation_id: int, user_id: int, tab_id: int, db: Session
+) -> Optional[TabGenerationResponse]:
+
+    # Verify that the user and tab exist
     if not verify_user_exists(user_id, db):
         raise ValueError("User not found")
-    
+
     if not verify_tab_exists(tab_id, db):
         raise ValueError("Tab not found")
-    
+
     try:
         # Query for all tab generations filtered by user_id and tab_id, joining with TextEntry
         result = (
@@ -126,30 +173,44 @@ def get_tab_generation(tab_generation_id: int, user_id: int, tab_id: int, db: Se
             .filter(Tab.user_id == user_id)
             .filter(TabGeneration.tab_id == tab_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
+            .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
+            .filter(Audio.audio_name.isnot(None))
             .filter(TabGeneration.id == tab_generation_id)
             .first()
         )
-        
+
         if not result:
             return None
 
         return TabGenerationResponse(
-                id=result.id,
-                tab_id=result.tab_id,
-                created_at=result.created_at,
-                text_entry_content=" ".join(entry.content for entry in result.text_entry) if result.text_entry else None
-            )    
+            id=result.id,
+            tab_id=result.tab_id,
+            created_at=result.created_at,
+            text_entry_content=(
+                " ".join(entry.content for entry in result.text_entry)
+                if result.text_entry
+                else None
+            ),
+            audio_name=(
+                "".join(audio.audio_name for audio in result.audio)
+                if result.audio
+                else None
+            ),
+        )
     except Exception as e:
         raise Exception(f"An error occurred while retrieving the tab generation: {e}")
-    
-def get_tab_generation_1st(user_id: int, tab_id: int, db: Session) -> Optional[TabGenerationResponse]:
-        # Verify that the user and tab exist
+
+
+def get_tab_generation_1st(
+    user_id: int, tab_id: int, db: Session
+) -> Optional[TabGenerationResponse]:
+    # Verify that the user and tab exist
     if not verify_user_exists(user_id, db):
         raise ValueError("User not found")
-    
+
     if not verify_tab_exists(tab_id, db):
         raise ValueError("Tab not found")
-    
+
     try:
         # Query for all tab generations filtered by user_id and tab_id, joining with TextEntry
         result = (
@@ -158,18 +219,31 @@ def get_tab_generation_1st(user_id: int, tab_id: int, db: Session) -> Optional[T
             .filter(Tab.user_id == user_id)
             .filter(TabGeneration.tab_id == tab_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
+            .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
+            .filter(Audio.audio_name.isnot(None))
             .order_by(TabGeneration.created_at.desc())
             .first()
         )
-        
+
         if not result:
             return None
 
         return TabGenerationResponse(
-                id=result.id,
-                tab_id=result.tab_id,
-                created_at=result.created_at,
-                text_entry_content=" ".join(entry.content for entry in result.text_entry) if result.text_entry else None
-            )    
+            id=result.id,
+            tab_id=result.tab_id,
+            created_at=result.created_at,
+            text_entry_content=(
+                " ".join(entry.content for entry in result.text_entry)
+                if result.text_entry
+                else None
+            ),
+            audio_name=(
+                "".join(audio.audio_name for audio in result.audio)
+                if result.audio
+                else None
+            ),
+        )
     except Exception as e:
-        raise Exception(f"An error occurred while retrieving the latest tab generation: {e}")
+        raise Exception(
+            f"An error occurred while retrieving the latest tab generation: {e}"
+        )

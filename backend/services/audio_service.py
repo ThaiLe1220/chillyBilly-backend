@@ -85,6 +85,7 @@ async def create_audio(
             preset=tts_result.get("preset", ""),
             text_length=tts_result.get("text_length", 0),
             voice_name=tts_result.get("voice_name", ""),
+            tab_generation_id=audio.tab_generation_id,
         )
 
         db.add(db_audio)

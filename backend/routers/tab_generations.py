@@ -11,7 +11,7 @@ from models import User, Tab
 router = APIRouter()
 
 @router.post("/users/{user_id}/tabs/{tab_id}/tab_generations/", response_model=TabGenerationResponse)
-def create_new_tab_generation(
+async def create_new_tab_generation(
     user_id: int,
     tab_id: int,
     tab_generation_create: TabGenerationCreate,
@@ -19,7 +19,7 @@ def create_new_tab_generation(
 ):
     try:
         # Create tab generation and handle possible exceptions
-        return create_tab_generation(user_id, tab_id, tab_generation_create, db)
+        return await create_tab_generation(user_id, tab_id, tab_generation_create, db)
     except Exception as e:
         # Return detailed error message
         raise HTTPException(
