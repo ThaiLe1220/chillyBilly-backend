@@ -144,12 +144,3 @@ curl "https://face-swap.12pmtech.link/api/v1/audios/" | jq '.'
 # Get audios for a specific user
 curl "https://face-swap.12pmtech.link/api/v1/audios/?user_id=1" | jq '.'
 
-# Get audios for a specific guest
-curl "https://face-swap.12pmtech.link/api/v1/audios/?guest_id=1" | jq '.'
-
-
-
-curl "https://face-swap.12pmtech.link/api/v1/audios/?status=READY" | jq '.'
-curl "https://face-swap.12pmtech.link/api/v1/all-audios/?status=READY" | jq '.'
-
-

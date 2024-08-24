@@ -6,9 +6,9 @@ curl -X POST http://localhost:8080/generate_audio -H "Content-Type: application/
 
 
 
-curl -OJ "http://localhost:8080/download/user/testuser123/1724351311_default_en_male_e28409fe.wav"
+curl -OJ "http://localhost:8080/download/user/testuser123/1724482746_default_en_male_f8119e83.wav"
 
 
-curl -X DELETE "http://localhost:8080/delete_audio/user/testuser123/1724351311_default_en_male_e28409fe.wav"
+curl -X DELETE "http://localhost:8080/delete_audio/user/testuser123/1724482746_default_en_male_f8119e83.wav"
 
-curl -X DELETE "http://localhost:8080/delete_audio/user/1/1724484177_default_en_male_3cd1a11a.wav"
+curl -X DELETE "http://localhost:8080/delete_audio/user/1/1724485391_default_en_male_4f29fe8b.wav"

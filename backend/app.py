@@ -1,8 +1,7 @@
-""" ./backend/app.py"""
-
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from database import engine, Base
 from routers import (
     user_feedbacks,
@@ -13,7 +12,7 @@ from routers import (
     guests,
     voices,
     tabs,
-    tab_generations
+    tab_generations,
 )
 import models
 import logging
@@ -29,7 +28,7 @@ logger.debug(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
 logger.debug(f"Current working directory: {os.getcwd()}")
 
 # Drop all tables - careful with this
-Base.metadata.drop_all(bind=engine)
+# Base.metadata.drop_all(bind=engine)
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -44,6 +43,10 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
+
+# Mount static files directory
+app.mount("/static", StaticFiles(directory="/app/output"), name="static")
+
 
 app.include_router(users.router, prefix="/api/v1", tags=["users"])
 app.include_router(guests.router, prefix="/api/v1", tags=["guests"])
