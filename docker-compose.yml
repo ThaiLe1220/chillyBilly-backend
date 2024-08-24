@@ -1,4 +1,6 @@
-# docker-compose.yml
+# ./docker-compose.yml
+
+version: "3.8"
 
 services:
   db:
@@ -14,13 +16,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     command: uvicorn app:app --host 0.0.0.0 --port 5000 --reload
     volumes:
       - ./backend:/app
       - ./output:/app/output
+      - pip_cache:/root/.cache/pip
     ports:
       - "5000:5000"
     environment:
@@ -34,20 +40,28 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
 
   tts_api:
     build:
       context: ./tts_api
+      dockerfile: Dockerfile
+      args:
+        HF_TOKEN: ${HF_TOKEN}
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     volumes:
       - ./output:/app/output
-      - ./model_cache:/root/.cache/huggingface
+      - model_cache:/root/.cache/tortoise/models
+      - pip_cache:/root/.cache/pip
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
       - TRANSFORMERS_VERBOSITY=info
       - CUDA_VISIBLE_DEVICES=0
+      - HF_TOKEN=${HF_TOKEN}
     deploy:
       resources:
         reservations:
@@ -55,14 +69,15 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    # Add healthcheck to monitor the application
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    # Increase timeout for container startup
     stop_grace_period: 1m
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  model_cache:
+  pip_cache:
