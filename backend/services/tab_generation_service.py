@@ -196,7 +196,7 @@ def get_tab_generation(
                 if result.audio
                 else None
             ),
-        )
+            )
     except Exception as e:
         raise Exception(f"An error occurred while retrieving the tab generation: {e}")
 
@@ -242,6 +242,7 @@ def get_tab_generation_1st(
                 if result.audio
                 else None
             ),
+
         )
     except Exception as e:
         raise Exception(

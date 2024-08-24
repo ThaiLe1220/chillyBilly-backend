@@ -17,6 +17,5 @@ class TabGenerationResponse(TabGenerationBase):
     id: int = Field(..., description="Unique identifier of the tab generation")
     text_entry_content: Optional[str] = Field(None, description="Content of the associated text entry")
     audio_name: Optional[str] = Field(None, description="The name of the audio")
-
     class Config:
         orm_mode = True

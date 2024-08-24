@@ -1,3 +1,5 @@
+docker builder prune
+docker-compose build --no-cache
 docker compose run tts-api nvcc --version
 
 curl http://localhost:8080/health

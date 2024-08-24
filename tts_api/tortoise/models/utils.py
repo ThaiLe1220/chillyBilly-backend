@@ -1,3 +1,5 @@
+# ./tts_api/tortoise/models/utils.py
+
 import os
 import re
 import requests
@@ -24,8 +26,8 @@ DEFAULT_MODELS_DIR = os.path.join(
 )
 MODELS_DIR = os.environ.get("TORTOISE_MODELS_DIR", DEFAULT_MODELS_DIR)
 MODELS = {
-    "autoregressive.pth": "https://huggingface.co/jbetker/tortoise-tts-v2/resolve/main/.models/autoregressive.pth",
     "autoregressive_vi.pth": "https://huggingface.co/Eugenememe/vietnamese_langugage_gpt/resolve/main/autoregressive_vi.pth?download=true",
+    "autoregressive.pth": "https://huggingface.co/jbetker/tortoise-tts-v2/resolve/main/.models/autoregressive.pth",
     "classifier.pth": "https://huggingface.co/jbetker/tortoise-tts-v2/resolve/main/.models/classifier.pth",
     "clvp2.pth": "https://huggingface.co/jbetker/tortoise-tts-v2/resolve/main/.models/clvp2.pth",
     "cvvp.pth": "https://huggingface.co/jbetker/tortoise-tts-v2/resolve/main/.models/cvvp.pth",
@@ -41,6 +43,10 @@ MODELS = {
 
 pbar = None
 HF_TOKEN = os.environ.get("HF_TOKEN")
+if not HF_TOKEN and any("huggingface.co" in url for url in MODELS.values()):
+    raise ValueError(
+        "HF_TOKEN environment variable is not set, but is required for downloading from Hugging Face"
+    )
 
 
 def show_progress(block_num, block_size, total_size):
