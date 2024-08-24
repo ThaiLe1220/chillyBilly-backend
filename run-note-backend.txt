@@ -133,21 +133,23 @@ curl -X POST "https://face-swap.12pmtech.link/api/v1/text_entries/" \
      -H "Content-Type: application/json" \
      -d '{"content":"Hello, world!", "language":"en", "user_id":1}' | jq '.'
 curl -X POST "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/" | jq '.'
+
 curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
      -H "Content-Type: application/json" \
      -d '{"text_entry_id":1, "voice_id":1}' | jq '.'
 
+# Get all audios
+curl "https://face-swap.12pmtech.link/api/v1/audios/" | jq '.'
 
-curl -X POST http://127.0.0.1:8080/generate_audio \
--H "Content-Type: application/json" \
--d '{
-     "text": "Hello, world!",
-     "lang": "en",
-     "voice_name": "default_en_male",
-     "user_id": "user123",
-     "user_type": "user",
-     "preset": "ultra_fast"
-}'
+# Get audios for a specific user
+curl "https://face-swap.12pmtech.link/api/v1/audios/?user_id=1" | jq '.'
+
+# Get audios for a specific guest
+curl "https://face-swap.12pmtech.link/api/v1/audios/?guest_id=1" | jq '.'
 
 
-docker compose run tts-api nvcc --version
+
+curl "https://face-swap.12pmtech.link/api/v1/audios/?status=READY" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/all-audios/?status=READY" | jq '.'
+
+

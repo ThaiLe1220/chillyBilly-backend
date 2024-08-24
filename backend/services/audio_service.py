@@ -69,21 +69,49 @@ async def create_audio(
         db_audio = Audio(
             text_entry_id=audio.text_entry_id,
             voice_id=voice_id,
-            file_path=tts_result["audio_path"],
-            duration=tts_result["audio_duration"],
-            file_size=tts_result["audio_size"],
+            audio_path=tts_result.get("audio_path", ""),
+            audio_duration=tts_result.get("audio_duration", 0),
+            audio_size=tts_result.get("audio_size", 0),
             user_id=text_entry.user_id,
             guest_id=text_entry.guest_id,
             status=AudioStatus.READY,
-            mime_type=tts_result["mime_type"],
-            sample_rate=tts_result["sample_rate"],
-            file_url=tts_result["file_url"],
-            delete_url=tts_result["delete_url"],
+            mime_type=tts_result.get("mime_type", ""),
+            sample_rate=tts_result.get("sample_rate", 0),
+            file_url=tts_result.get("file_url", ""),
+            delete_url=tts_result.get("delete_url", ""),
+            audio_name=tts_result.get("audio_name", ""),
+            generation_time=tts_result.get("generation_time", 0),
+            language=tts_result.get("language", ""),
+            preset=tts_result.get("preset", ""),
+            text_length=tts_result.get("text_length", 0),
+            voice_name=tts_result.get("voice_name", ""),
         )
 
         db.add(db_audio)
         db.commit()
         db.refresh(db_audio)
+
+        return AudioResponse(
+            id=db_audio.id,
+            text_entry_id=db_audio.text_entry_id,
+            voice_id=db_audio.voice_id,
+            audio_path=db_audio.audio_path,
+            audio_duration=db_audio.audio_duration,
+            audio_size=db_audio.audio_size,
+            status=db_audio.status,
+            created_at=db_audio.created_at,
+            updated_at=db_audio.updated_at,
+            mime_type=db_audio.mime_type,
+            sample_rate=db_audio.sample_rate,
+            file_url=db_audio.file_url,
+            delete_url=db_audio.delete_url,
+            audio_name=db_audio.audio_name,
+            generation_time=db_audio.generation_time,
+            language=db_audio.language,
+            preset=db_audio.preset,
+            text_length=db_audio.text_length,
+            voice_name=db_audio.voice_name,
+        )
 
     except httpx.HTTPError as e:
         # Handle HTTP errors from the TTS API
@@ -92,7 +120,7 @@ async def create_audio(
         db_audio = Audio(
             text_entry_id=audio.text_entry_id,
             voice_id=voice_id,
-            file_path="error",
+            audio_path="error",
             user_id=text_entry.user_id,
             guest_id=text_entry.guest_id,
             status=AudioStatus.FAILED,
@@ -109,7 +137,7 @@ async def create_audio(
         db_audio = Audio(
             text_entry_id=audio.text_entry_id,
             voice_id=voice_id,
-            file_path="error",
+            audio_path="error",
             user_id=text_entry.user_id,
             guest_id=text_entry.guest_id,
             status=AudioStatus.FAILED,
@@ -118,22 +146,6 @@ async def create_audio(
         db.commit()
         db.refresh(db_audio)
         raise HTTPException(status_code=500, detail=error_detail) from e
-
-    return AudioResponse(
-        id=db_audio.id,
-        text_entry_id=db_audio.text_entry_id,
-        voice_id=db_audio.voice_id,
-        file_path=db_audio.file_path,
-        duration=db_audio.duration,
-        file_size=db_audio.file_size,
-        status=db_audio.status.value,
-        created_at=db_audio.created_at,
-        updated_at=db_audio.updated_at,
-        mime_type=db_audio.mime_type,
-        sample_rate=db_audio.sample_rate,
-        file_url=db_audio.file_url,
-        delete_url=db_audio.delete_url,
-    )
 
 
 async def get_audio(db: Session, audio_id: int) -> AudioResponse:
@@ -144,65 +156,100 @@ async def get_audio(db: Session, audio_id: int) -> AudioResponse:
         id=db_audio.id,
         text_entry_id=db_audio.text_entry_id,
         voice_id=db_audio.voice_id,
-        file_path=db_audio.file_path,
-        duration=db_audio.duration,
-        file_size=db_audio.file_size,
-        status=db_audio.status.value,
+        audio_path=db_audio.audio_path,
+        audio_duration=db_audio.audio_duration,
+        audio_size=db_audio.audio_size,
+        status=db_audio.status,
         created_at=db_audio.created_at,
         updated_at=db_audio.updated_at,
         mime_type=db_audio.mime_type,
         sample_rate=db_audio.sample_rate,
         file_url=db_audio.file_url,
         delete_url=db_audio.delete_url,
+        audio_name=db_audio.audio_name,
+        generation_time=db_audio.generation_time,
+        language=db_audio.language,
+        preset=db_audio.preset,
+        text_length=db_audio.text_length,
+        voice_name=db_audio.voice_name,
     )
 
 
 async def get_audios(
-    db: Session, user_id: Optional[int] = None, guest_id: Optional[int] = None
+    db: Session,
+    user_id: Optional[int] = None,
+    guest_id: Optional[int] = None,
+    status: Optional[AudioStatus] = None,
 ) -> List[AudioResponse]:
     query = db.query(Audio)
     if user_id is not None:
         query = query.filter(Audio.user_id == user_id)
-    elif guest_id is not None:
+    if guest_id is not None:
         query = query.filter(Audio.guest_id == guest_id)
+    if status is not None:
+        query = query.filter(Audio.status == status)
     db_audios = query.all()
     return [
         AudioResponse(
             id=audio.id,
             text_entry_id=audio.text_entry_id,
             voice_id=audio.voice_id,
-            file_path=audio.file_path,
-            duration=audio.duration,
-            file_size=audio.file_size,
-            status=audio.status.value,
+            audio_path=audio.audio_path,
+            audio_duration=audio.audio_duration,
+            audio_size=audio.audio_size,
+            status=audio.status,
             created_at=audio.created_at,
             updated_at=audio.updated_at,
             mime_type=audio.mime_type,
             sample_rate=audio.sample_rate,
             file_url=audio.file_url,
             delete_url=audio.delete_url,
+            audio_name=audio.audio_name,
+            generation_time=audio.generation_time,
+            language=audio.language,
+            preset=audio.preset,
+            text_length=audio.text_length,
+            voice_name=audio.voice_name,
         )
         for audio in db_audios
     ]
 
 
-async def get_all_audios(db: Session) -> List[AudioResponse]:
-    db_audios = db.query(Audio).all()
+async def get_all_audios(
+    db: Session,
+    user_id: Optional[int] = None,
+    guest_id: Optional[int] = None,
+    status: Optional[AudioStatus] = None,
+) -> List[AudioResponse]:
+    query = db.query(Audio)
+    if user_id is not None:
+        query = query.filter(Audio.user_id == user_id)
+    if guest_id is not None:
+        query = query.filter(Audio.guest_id == guest_id)
+    if status is not None:
+        query = query.filter(Audio.status == status)
+    db_audios = query.all()
     return [
         AudioResponse(
             id=audio.id,
             text_entry_id=audio.text_entry_id,
             voice_id=audio.voice_id,
-            file_path=audio.file_path,
-            duration=audio.duration,
-            file_size=audio.file_size,
-            status=audio.status.value,
+            audio_path=audio.audio_path,
+            audio_duration=audio.audio_duration,
+            audio_size=audio.audio_size,
+            status=audio.status,
             created_at=audio.created_at,
             updated_at=audio.updated_at,
             mime_type=audio.mime_type,
             sample_rate=audio.sample_rate,
             file_url=audio.file_url,
             delete_url=audio.delete_url,
+            audio_name=audio.audio_name,
+            generation_time=audio.generation_time,
+            language=audio.language,
+            preset=audio.preset,
+            text_length=audio.text_length,
+            voice_name=audio.voice_name,
         )
         for audio in db_audios
     ]
