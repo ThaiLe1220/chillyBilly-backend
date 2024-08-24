@@ -125,22 +125,25 @@ sudo apt-get install nvidia-container-runtime
 sudo systemctl restart docker
 
 docker run --gpus all --rm nvidia/cuda:11.0-base nvidia-smi
+curl -X POST "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/" | jq '.'
 
 curl -X POST "https://face-swap.12pmtech.link/api/v1/users/" \
      -H "Content-Type: application/json" \
      -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220", "role":"REGULAR"}'
+
 curl -X POST "https://face-swap.12pmtech.link/api/v1/text_entries/" \
      -H "Content-Type: application/json" \
-     -d '{"content":"Hello, world!", "language":"en", "user_id":1}' | jq '.'
-curl -X POST "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/" | jq '.'
+     -d '{"content":"Hello, world!", "language":"en", "user_id":2, "tab_generation_id", ""}' | jq '.'
+curl -X POST "https://face-swap.12pmtech.link/api/v1/text_entries/" \
+     -H "Content-Type: application/json" \
+     -d '{"content":"Xin chào Việt Nam", "language":"vi", "user_id":2, "tab_generation_id", ""}' | jq '.'
+
+curl "https://face-swap.12pmtech.link/api/v1/text_entries/?user_id=2" | jq '.'
 
 curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
      -H "Content-Type: application/json" \
      -d '{"text_entry_id":1, "voice_id":1}' | jq '.'
 
-# Get all audios
-curl "https://face-swap.12pmtech.link/api/v1/audios/" | jq '.'
-
-# Get audios for a specific user
-curl "https://face-swap.12pmtech.link/api/v1/audios/?user_id=1" | jq '.'
-
+curl -X POST "https://face-swap.12pmtech.link/api/v1/audios/" \
+     -H "Content-Type: application/json" \
+     -d '{"text_entry_id":2, "voice_id":3}' | jq '.'

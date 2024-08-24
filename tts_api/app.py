@@ -12,6 +12,7 @@ from tortoise.utils.audio import load_audio, load_voice, load_voices
 import re
 import librosa
 import numpy as np
+import shutil
 
 app = Flask(__name__)
 
@@ -20,7 +21,7 @@ base_output_dir = "output"
 
 # Load TextToSpeech models
 tts = TextToSpeech()
-# tts_vi = TextToSpeech(lang="vi")
+tts_vi = TextToSpeech(lang="vi")
 
 # Create a queue to handle requests
 request_queue = Queue()
@@ -86,6 +87,10 @@ def generate_audio():
     user_type = data.get("user_type", "guest")
     preset = data.get("preset", "ultra_fast")
 
+    print(
+        f"Processing request - Text: {text[:50]}..., Lang: {lang}, Voice: {voice_name}, User ID: {user_id}, User Type: {user_type}, Preset: {preset}"
+    )
+
     if not text or not lang:
         return jsonify({"error": "Please provide both text and lang"}), 400
 
@@ -95,10 +100,10 @@ def generate_audio():
     if not is_valid_user_id(user_id):
         return jsonify({"error": "Invalid user ID. Must be alphanumeric"}), 400
 
-    # if lang == "vi":
-    #     tts_model = tts_vi
-    # else:
-    tts_model = tts
+    if lang == "vi":
+        tts_model = tts_vi
+    else:
+        tts_model = tts
 
     # Create user-specific output directory
     user_output_dir = os.path.join(base_output_dir, user_type, user_id)
@@ -162,6 +167,50 @@ def delete_audio(user_type, user_id, filename):
     else:
         return jsonify({"error": "Audio file not found"}), 404
 
+
+@app.route("/delete_all_user_audio/<user_type>/<user_id>", methods=["DELETE"])
+def delete_all_user_audio(user_type, user_id):
+    user_dir = os.path.join(base_output_dir, user_type, user_id)
+    if os.path.exists(user_dir):
+        try:
+            # Delete all files in the user's directory
+            for filename in os.listdir(user_dir):
+                file_path = os.path.join(user_dir, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+            return (
+                jsonify(
+                    {
+                        "message": f"All audio files for user {user_id} deleted successfully"
+                    }
+                ),
+                200,
+            )
+        except Exception as e:
+            return jsonify({"error": f"Failed to delete audio files: {str(e)}"}), 500
+    else:
+        return jsonify({"error": "User directory not found"}), 404
+
+
+@app.route("/delete_all_audio", methods=["DELETE"])
+def delete_all_audio():
+    try:
+        # Delete all subdirectories and files in the base output directory
+        for user_type in os.listdir(base_output_dir):
+            user_type_path = os.path.join(base_output_dir, user_type)
+            if os.path.isdir(user_type_path):
+                shutil.rmtree(user_type_path)
+
+        # Recreate the base structure
+        os.makedirs(os.path.join(base_output_dir, "guest"), exist_ok=True)
+        os.makedirs(os.path.join(base_output_dir, "user"), exist_ok=True)
+
+        return jsonify({"message": "All audio files deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to delete all audio files: {str(e)}"}), 500
+
+
+# ... (rest of the existing code)
 
 if __name__ == "__main__":
     # Start the queue processing thread

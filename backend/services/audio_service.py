@@ -56,6 +56,8 @@ async def create_audio(
         "preset": "ultra_fast",
     }
 
+    print(f"[create_audio] tts_data: {tts_data}")
+
     try:
         # Call local TTS API
         async with httpx.AsyncClient() as client:
