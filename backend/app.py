@@ -12,6 +12,8 @@ from routers import (
     audios,
     guests,
     voices,
+    tabs,
+    tab_generations
 )
 import models
 import logging
@@ -50,6 +52,8 @@ app.include_router(text_entries.router, prefix="/api/v1", tags=["text_entries"])
 app.include_router(audios.router, prefix="/api/v1", tags=["audios"])
 app.include_router(voices.router, prefix="/api/v1", tags=["voices"])
 app.include_router(user_feedbacks.router, prefix="/api/v1", tags=["user_feedbacks"])
+app.include_router(tabs.router, prefix="/api/v1", tags=["tabs"])
+app.include_router(tab_generations.router, prefix="/api/v1", tags=["tab_generations"])
 
 
 # Health check endpoint

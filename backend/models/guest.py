@@ -18,6 +18,7 @@ class Guest(Base):
         "TextEntry", back_populates="guest", cascade="all, delete"
     )
     audio = relationship("Audio", back_populates="guest", cascade="all, delete")
+    tab = relationship("Tab", back_populates="guest", cascade="all, delete-orphan")
 
     @property
     def is_expired(self):

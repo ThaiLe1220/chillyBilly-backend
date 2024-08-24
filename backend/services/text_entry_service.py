@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from models.text_entry import TextEntry
 from models.user import User
 from models.guest import Guest
+from datetime import datetime
 from schemas.text_entry import TextEntryCreate, TextEntryResponse
 
 
@@ -48,7 +49,13 @@ def create_text_entry(db: Session, text_entry: TextEntryCreate) -> TextEntryResp
         )
 
     try:
-        db_text_entry = TextEntry(**text_entry.dict(exclude_unset=True))
+        db_text_entry = TextEntry(
+            content=text_entry.content,
+            language=text_entry.language,
+            tab_generation_id=text_entry.tab_generation_id,
+            user_id=text_entry.user_id,
+            created_at=datetime.utcnow()  # Use current time or provide if necessary
+        )
         db.add(db_text_entry)
         db.commit()
         db.refresh(db_text_entry)
