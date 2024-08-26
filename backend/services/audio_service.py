@@ -96,8 +96,8 @@ async def process_audio(db: Session, audio_id: int, text_entry_id: int, voice_id
         "preset": "ultra_fast",
     }
 
-    max_retries = 50
-    retry_delay = 0.5
+    max_retries = 500
+    retry_delay = 1
 
     for attempt in range(max_retries):
         try:
