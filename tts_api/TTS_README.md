@@ -28,7 +28,8 @@ This API provides a text-to-speech service that generates audio files from text 
 ```json
 {
     "message": "Audio generated successfully",
-    "file_url": "http://127.0.0.1:8080/download/user/user123/1629123456_default_a1b2c3d4.wav",
+    "download_url": "http://127.0.0.1:8080/download/user/user123/1629123456_default_a1b2c3d4.wav",
+    "delete_url": "http://127.0.0.1:8080/delete_audio/user/user123/1629123456_default_a1b2c3d4.wav",
     "audio_name": "1629123456_default_a1b2c3d4.wav",
     "audio_size": 12345,
     "audio_path": "/path/to/output/user/user123/1629123456_default_a1b2c3d4.wav",
@@ -78,6 +79,18 @@ http://127.0.0.1:8080/delete_audio/user/user123/1629123456_default_a1b2c3d4.wav
     "message": "Audio file deleted successfully"
 }
 ```
+
+### 4. Delete All User Audio
+
+**Endpoint:** `/delete_all_user_audio/<user_type>/<user_id>`  
+**Method:** `DELETE`  
+**Description:** Deletes all audio files for a specific user.
+
+### 5. Delete All Audio
+
+**Endpoint:** `/delete_all_audio`  
+**Method:** `DELETE`  
+**Description:** Deletes all audio files for all users.
 
 ## Usage Example
 
@@ -138,5 +151,6 @@ curl -X DELETE http://127.0.0.1:8080/delete_all_audio
 - The `lang` parameter supports `"en"` for English and `"vi"` for Vietnamese.
 - The server processes requests sequentially, so users may experience longer wait times if multiple requests are made simultaneously.
 - Use the delete endpoint to remove audio files that are no longer needed.
+- The server uses a queue mechanism to process requests, which allows for parallel processing of multiple requests.
 
 For further questions or issues, please contact the repository owner or maintainer.

@@ -493,7 +493,7 @@ class TextToSpeech:
         """
         # Use generally found best tuning knobs for generation.
         settings = {
-            "temperature": 0.2,
+            "temperature": 0.8,  # was 0.2
             "length_penalty": 1.0,
             "repetition_penalty": 2.0,
             "top_p": 0.8,
@@ -508,8 +508,8 @@ class TextToSpeech:
                 "sampler": "ddim",
             },
             "ultra_fast": {
-                "num_autoregressive_samples": 16,
-                "diffusion_iterations": 10,
+                "num_autoregressive_samples": 16,  # was 16
+                "diffusion_iterations": 15,  # was 10
                 "sampler": "ddim",
             },
             "ultra_fast_old": {

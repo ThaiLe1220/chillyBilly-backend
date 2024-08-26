@@ -120,13 +120,13 @@ def generate_audio():
     # Wait for the result
     output_file, generated_time, audio_duration, wavelength = result_queue.get()
 
-    file_url = request.url_root + f"download/{user_type}/{user_id}/{filename}"
+    download_url = request.url_root + f"download/{user_type}/{user_id}/{filename}"
     delete_url = request.url_root + f"delete_audio/{user_type}/{user_id}/{filename}"
     file_size = os.path.getsize(output_file)
 
     response_data = {
         "message": "Audio generated successfully",
-        "file_url": file_url,
+        "download_url": download_url,
         "delete_url": delete_url,
         "audio_name": filename,
         "audio_size": file_size,
@@ -149,10 +149,9 @@ def generate_audio():
 
 
 @app.route("/download/<user_type>/<user_id>/<filename>", methods=["GET"])
-def download_file(user_type, user_id, filename):
-    return send_from_directory(
-        os.path.join(base_output_dir, user_type, user_id), filename
-    )
+def download_audio(user_type, user_id, filename):
+    directory = os.path.join(base_output_dir, user_type, user_id)
+    return send_from_directory(directory, filename, as_attachment=True)
 
 
 @app.route("/delete_audio/<user_type>/<user_id>/<filename>", methods=["DELETE"])
