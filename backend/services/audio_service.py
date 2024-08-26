@@ -3,13 +3,76 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, BackgroundTasks
 from models import Audio, TextEntry, Voice
-from schemas.audio import AudioCreate, AudioResponse, AudioStatus
+from schemas.audio import AudioCreate, AudioResponse
+from models.audio import AudioStatus
 from typing import List, Optional
 import httpx
 import os
 
 
 TTS_API_URL = os.getenv("TTS_API_URL", "http://localhost:8080")
+
+def create_audio_template(
+    db: Session, audio: AudioCreate
+) -> AudioResponse:
+    text_entry = db.query(TextEntry).filter(TextEntry.id == audio.text_entry_id).first()
+    if not text_entry:
+        raise HTTPException(status_code=404, detail="Text entry not found")
+
+    # Use provided voice_id if present, otherwise determine based on language
+    if audio.voice_id is not None:
+        voice_id = audio.voice_id
+    else:
+        if text_entry.language == "vi":
+            voice_id = 1
+        elif text_entry.language == "en":
+            voice_id = 3
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported language")
+
+    if text_entry.guest_id is not None:
+        raise HTTPException(status_code=403, detail="Guests cannot use custom voices")
+    
+    voice = db.query(Voice).filter(Voice.id == voice_id).first()
+    if not voice:
+        raise HTTPException(status_code=404, detail="Voice not found")
+
+    if text_entry.guest_id is not None:
+        raise HTTPException(status_code=403, detail="Guests cannot use custom voices")
+
+    if voice.user_id != text_entry.user_id and not voice.is_default:
+        raise HTTPException(status_code=403, detail="Cannot use another user's voice")
+
+    # Check if voice is ready
+    if voice.status != "ready":
+        raise HTTPException(status_code=400, detail="Voice is not ready for use")
+
+    
+    try:
+        db_audio = Audio(
+            text_entry_id=audio.text_entry_id,
+            voice_id=voice_id,
+            user_id=text_entry.user_id,
+            guest_id=text_entry.guest_id,
+            status=AudioStatus.CREATED,
+            tab_generation_id=audio.tab_generation_id,
+            voice_id=voice_id,
+        )
+
+        db.add(db_audio)
+        db.commit()
+        db.refresh(db_audio)
+
+        return AudioResponse(
+            id=db_audio.id,
+            text_entry_id=db_audio.text_entry_id,
+            status=db_audio.status,
+            audio_name=db_audio.audio_name,
+            voice_id=voice_id
+        )
+
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=500, detail="Got error for creating audio template") from e
 
 
 async def create_audio(

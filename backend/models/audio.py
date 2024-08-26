@@ -15,6 +15,7 @@ from enum import Enum as PyEnum
 
 
 class AudioStatus(PyEnum):
+    CREATED = "CREATED"
     PROCESSING = "PROCESSING"
     READY = "READY"
     FAILED = "FAILED"
@@ -34,7 +35,7 @@ class Audio(Base):
     audio_path = Column(String, nullable=True)
     audio_size = Column(Integer, nullable=True)
     audio_duration = Column(Float, nullable=True)
-    status = Column(Enum(AudioStatus), default=AudioStatus.PROCESSING, nullable=False)
+    status = Column(Enum(AudioStatus), default=AudioStatus.CREATED, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

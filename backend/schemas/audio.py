@@ -7,6 +7,7 @@ from enum import Enum
 
 
 class AudioStatus(str, Enum):
+    CREATED = "CREATED"
     PROCESSING = "PROCESSING"
     READY = "READY"
     FAILED = "FAILED"
@@ -28,7 +29,7 @@ class AudioResponse(BaseModel):
     voice_id: Optional[int] = Field(
         None, description="The ID of the voice used (if any)"
     )
-    audio_path: str = Field(..., description="The path to the generated audio file")
+    audio_path: Optional[str] = Field(None, description="The path to the generated audio file")
     audio_duration: Optional[float] = Field(
         None, description="The duration of the audio in seconds"
     )
@@ -36,11 +37,11 @@ class AudioResponse(BaseModel):
         None, description="The size of the audio file in bytes"
     )
     status: AudioStatus = Field(..., description="The current status of the audio")
-    created_at: datetime = Field(
-        ..., description="The creation timestamp of the generated audio"
+    created_at: Optional[datetime] = Field(
+        None, description="The creation timestamp of the generated audio"
     )
-    updated_at: datetime = Field(
-        ..., description="The last update timestamp of the generated audio"
+    updated_at: Optional[datetime] = Field(
+        None, description="The last update timestamp of the generated audio"
     )
     mime_type: Optional[str] = Field(
         None, description="The MIME type of the audio file"
@@ -69,40 +70,40 @@ class AudioResponse(BaseModel):
     text_length: Optional[int] = Field(None, description="The length of the input text")
     voice_name: Optional[str] = Field(None, description="The name of the voice used")
 
-    @validator("audio_duration")
-    @classmethod
-    def audio_duration_must_be_positive(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError("Audio duration must be positive")
-        return v
+    # @validator("audio_duration")
+    # @classmethod
+    # def audio_duration_must_be_positive(cls, v):
+    #     if v is not None and v <= 0:
+    #         raise ValueError("Audio duration must be positive")
+    #     return v
 
-    @validator("audio_size")
-    @classmethod
-    def audio_size_must_be_positive(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError("Audio size must be positive")
-        return v
+    # @validator("audio_size")
+    # @classmethod
+    # def audio_size_must_be_positive(cls, v):
+    #     if v is not None and v <= 0:
+    #         raise ValueError("Audio size must be positive")
+    #     return v
 
-    @validator("sample_rate")
-    @classmethod
-    def sample_rate_must_be_positive(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError("Sample rate must be positive")
-        return v
+    # @validator("sample_rate")
+    # @classmethod
+    # def sample_rate_must_be_positive(cls, v):
+    #     if v is not None and v <= 0:
+    #         raise ValueError("Sample rate must be positive")
+    #     return v
 
-    @validator("generation_time")
-    @classmethod
-    def generation_time_must_be_positive(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError("Generation time must be positive")
-        return v
+    # @validator("generation_time")
+    # @classmethod
+    # def generation_time_must_be_positive(cls, v):
+    #     if v is not None and v <= 0:
+    #         raise ValueError("Generation time must be positive")
+    #     return v
 
-    @validator("text_length")
-    @classmethod
-    def text_length_must_be_positive(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError("Text length must be positive")
-        return v
+    # @validator("text_length")
+    # @classmethod
+    # def text_length_must_be_positive(cls, v):
+    #     if v is not None and v <= 0:
+    #         raise ValueError("Text length must be positive")
+    #     return v
 
     class Config:
         from_attributes = True
