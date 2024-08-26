@@ -146,6 +146,19 @@ To delete all audio files for all users, send a DELETE request to the `/delete_a
 curl -X DELETE http://127.0.0.1:8080/delete_all_audio
 ```
 
+### Uploading a new voice:
+
+upload voice
+
+```bash
+curl -X POST -H "Content-Type: multipart/form-data" \
+     -F "file=@/path/to/your/audio_file.wav" \
+     -F "user_id=testuser" \
+     -F "voice_name=myvoice" \
+     http://localhost:8080/add_voice
+```
+
+
 ## Notes
 
 - The `lang` parameter supports `"en"` for English and `"vi"` for Vietnamese.
