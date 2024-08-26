@@ -1,7 +1,7 @@
 """ ./backend/routers/users.py """
 
 from typing import List
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from schemas.user import (
     UserCreate,
@@ -59,3 +59,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 @router.post("/login", response_model=LoginResponse)
 def login(user_login: UserLogin, db: Session = Depends(get_db)):
     return user_service.login_user(db, user_login.username, user_login.password)
+
+@router.get("/users/token/verify")
+def verify_token(token: str = Query(...), db: Session = Depends(get_db)):
+    return user_service.verify_token(db, token)
