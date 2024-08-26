@@ -3,10 +3,11 @@
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from models.user import User
 from schemas.user import UserCreate, UserUpdate, UserResponse, UserRole
 import bcrypt
+from jose import JWTError, jwt
 
 
 def hash_password(password: str) -> str:
@@ -202,3 +203,13 @@ def login_user(db: Session, username: str, password: str):
     user.last_login = datetime.utcnow()
     db.commit()
     return {"access_token": access_token, "token_type": "bearer", "user": user}
+
+def verify_token(db: Session, token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        return {"message": "Token is valid"}
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
