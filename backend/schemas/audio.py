@@ -8,7 +8,6 @@ from enum import Enum
 
 class AudioStatus(str, Enum):
     CREATED = "CREATED"
-    PROCESSING = "PROCESSING"
     READY = "READY"
     FAILED = "FAILED"
 
@@ -29,7 +28,9 @@ class AudioResponse(BaseModel):
     voice_id: Optional[int] = Field(
         None, description="The ID of the voice used (if any)"
     )
-    audio_path: Optional[str] = Field(None, description="The path to the generated audio file")
+    audio_path: Optional[str] = Field(
+        None, description="The path to the generated audio file"
+    )
     audio_duration: Optional[float] = Field(
         None, description="The duration of the audio in seconds"
     )

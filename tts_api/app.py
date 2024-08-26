@@ -307,9 +307,10 @@ def generate_audio():
         user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id, voice_name)
         if os.path.exists(user_voice_dir):
             voice_new_name = os.path.join(user_id, voice_name)
+        else:
+            return jsonify({"error": "Requested custom voice not found"}), 404
     else:
         voice_new_name = voice_name
-        return jsonify({"error": "Requested voice not found"}), 404
 
     # Create user-specific output directory
     user_output_dir = os.path.join(BASE_OUTPUT_DIR, user_type, user_id)

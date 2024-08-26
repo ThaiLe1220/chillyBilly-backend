@@ -22,7 +22,11 @@ def verify_tab_exists(tab_id: int, db: Session) -> bool:
 
 
 async def create_tab_generation(
-    user_id: int, tab_id: int, tab_generation_create: TabGenerationCreate, db: Session
+    user_id: int,
+    tab_id: int,
+    tab_generation_create: TabGenerationCreate,
+    db: Session,
+    background_tasks: BackgroundTasks,
 ) -> TabGenerationResponse:
     # Verify that the user and tab exist
     if not verify_user_exists(user_id, db):
@@ -42,11 +46,14 @@ async def create_tab_generation(
         db.commit()
         db.refresh(tab_generation)
 
+        text_entry_created = None
+        audio_created = None
+
         # Create TextEntry if provided
         if tab_generation_create.text_entry_content:
             text_entry_create = TextEntryCreate(
                 content=tab_generation_create.text_entry_content,
-                language=tab_generation_create.language,  # Default language or derived from request if needed
+                language=tab_generation_create.language,
                 tab_generation_id=tab_generation.id,
                 user_id=user_id,
             )
@@ -55,13 +62,13 @@ async def create_tab_generation(
             )
 
         if text_entry_created:
-            audio_created = audio_service.create_audio_template(
-                db=db,
-                audio=AudioCreate(
-                    text_entry_id=text_entry_created.id,
-                    voice_id=tab_generation_create.voice_id,
-                    tab_generation_id=tab_generation.id,
-                ),
+            audio_create = AudioCreate(
+                text_entry_id=text_entry_created.id,
+                voice_id=tab_generation_create.voice_id,
+                tab_generation_id=tab_generation.id,
+            )
+            audio_created = await audio_service.create_audio(
+                db=db, audio=audio_create, background_tasks=background_tasks
             )
 
         return TabGenerationResponse(
@@ -69,11 +76,10 @@ async def create_tab_generation(
             tab_id=tab_generation.tab_id,
             created_at=tab_generation.created_at,
             text_entry_content=tab_generation_create.text_entry_content,
-            audio=audio_created
+            audio=audio_created,
         )
     except Exception as e:
-        if isinstance(db, Session):
-            db.rollback()
+        db.rollback()
         raise Exception(f"Error creating tab generation: {str(e)}")
 
 
@@ -107,10 +113,11 @@ def get_all_tab_generations_of_user(
                         text_entry_id=tab_generation.audio[0].text_entry_id,
                         status=tab_generation.audio[0].status,
                         audio_name=tab_generation.audio[0].audio_name,
-                        audio_duration=tab_generation.audio[0].audio_duration
+                        audio_duration=tab_generation.audio[0].audio_duration,
                     )
-                    if tab_generation.audio else None
-                )
+                    if tab_generation.audio
+                    else None
+                ),
             )
             for tab_generation in tab_generations
         ]
@@ -150,10 +157,11 @@ def get_all_tab_generations_of_a_tab(
                         text_entry_id=tab_generation.audio[0].text_entry_id,
                         status=tab_generation.audio[0].status,
                         audio_name=tab_generation.audio[0].audio_name,
-                        audio_duration=tab_generation.audio[0].audio_duration
+                        audio_duration=tab_generation.audio[0].audio_duration,
                     )
-                    if tab_generation.audio else None
-                )
+                    if tab_generation.audio
+                    else None
+                ),
             )
             for tab_generation in tab_generations
         ]
@@ -198,15 +206,16 @@ def get_tab_generation(
                 else None
             ),
             audio=(
-                    AudioResponse(
-                        id=result.audio[0].id,
-                        text_entry_id=result.audio[0].text_entry_id,
-                        status=result.audio[0].status,
-                        audio_name=result.audio[0].audio_name,
-                        audio_duration=result.audio[0].audio_duration
-                    )
-                    if result.audio else None
+                AudioResponse(
+                    id=result.audio[0].id,
+                    text_entry_id=result.audio[0].text_entry_id,
+                    status=result.audio[0].status,
+                    audio_name=result.audio[0].audio_name,
+                    audio_duration=result.audio[0].audio_duration,
                 )
+                if result.audio
+                else None
+            ),
         )
     except Exception as e:
         raise Exception(f"An error occurred while retrieving the tab generation: {e}")
@@ -248,15 +257,16 @@ def get_tab_generation_1st(
                 else None
             ),
             audio=(
-                    AudioResponse(
-                        id=result.audio[0].id,
-                        text_entry_id=result.audio[0].text_entry_id,
-                        status=result.audio[0].status,
-                        audio_name=result.audio[0].audio_name,
-                        audio_duration=result.audio[0].audio_duration
-                    )
-                    if result.audio else None
+                AudioResponse(
+                    id=result.audio[0].id,
+                    text_entry_id=result.audio[0].text_entry_id,
+                    status=result.audio[0].status,
+                    audio_name=result.audio[0].audio_name,
+                    audio_duration=result.audio[0].audio_duration,
                 )
+                if result.audio
+                else None
+            ),
         )
     except Exception as e:
         raise Exception(
