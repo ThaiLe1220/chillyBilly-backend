@@ -5,3 +5,4 @@ __pycache__
 node_modules
 model_cache
 output
+voices

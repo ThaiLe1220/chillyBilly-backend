@@ -56,6 +56,7 @@ services:
       - ./output:/app/output
       - model_cache:/root/.cache/tortoise/models
       - pip_cache:/root/.cache/pip
+      - ./tts_api/tortoise/voices:/app/tts_api/tortoise/voices
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
