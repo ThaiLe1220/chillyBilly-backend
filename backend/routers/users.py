@@ -60,6 +60,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 def login(user_login: UserLogin, db: Session = Depends(get_db)):
     return user_service.login_user(db, user_login.username, user_login.password)
 
+
 @router.get("/users/token/verify")
 def verify_token(token: str = Query(...), db: Session = Depends(get_db)):
     return user_service.verify_token(db, token)
