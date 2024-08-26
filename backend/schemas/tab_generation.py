@@ -3,6 +3,8 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
+from models import Audio
+from schemas.audio import AudioResponse
 
 class TabGenerationBase(BaseModel):
     tab_id: int = Field(..., description="ID of the associated tab")
@@ -16,6 +18,6 @@ class TabGenerationCreate(TabGenerationBase):
 class TabGenerationResponse(TabGenerationBase):
     id: int = Field(..., description="Unique identifier of the tab generation")
     text_entry_content: Optional[str] = Field(None, description="Content of the associated text entry")
-    audio_name: Optional[str] = Field(None, description="The name of the audio")
+    audio: Optional[AudioResponse] = Field(None, description="The audio")
     class Config:
         orm_mode = True

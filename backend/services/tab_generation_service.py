@@ -7,7 +7,7 @@ from models.audio import Audio
 from models import User, Tab
 from schemas.tab_generation import TabGenerationCreate, TabGenerationResponse
 from schemas.text_entry import TextEntryCreate
-from schemas.audio import AudioCreate
+from schemas.audio import AudioCreate, AudioResponse
 from services import text_entry_service, audio_service
 from datetime import datetime
 from typing import Optional, List
@@ -55,14 +55,13 @@ async def create_tab_generation(
             )
 
         if text_entry_created:
-            audio_created = await audio_service.create_audio(
+            audio_created = audio_service.create_audio_template(
                 db=db,
                 audio=AudioCreate(
                     text_entry_id=text_entry_created.id,
                     voice_id=tab_generation_create.voice_id,
                     tab_generation_id=tab_generation.id,
                 ),
-                background_tasks=BackgroundTasks,
             )
 
         return TabGenerationResponse(
@@ -70,7 +69,7 @@ async def create_tab_generation(
             tab_id=tab_generation.tab_id,
             created_at=tab_generation.created_at,
             text_entry_content=tab_generation_create.text_entry_content,
-            audio_name=audio_created.audio_name,
+            audio=audio_created
         )
     except Exception as e:
         if isinstance(db, Session):
@@ -88,7 +87,6 @@ def get_all_tab_generations_of_user(
             .filter(Tab.user_id == user_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
             .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
-            .filter(Audio.audio_name.isnot(None))
             .all()
         )
 
@@ -103,11 +101,16 @@ def get_all_tab_generations_of_user(
                     if tab_generation.text_entry
                     else None
                 ),
-                audio_name=(
-                    "".join(audio.audio_name for audio in tab_generation.audio)
-                    if tab_generation.audio
-                    else None
-                ),
+                audio=(
+                    AudioResponse(
+                        id=tab_generation.audio[0].id,
+                        text_entry_id=tab_generation.audio[0].text_entry_id,
+                        status=tab_generation.audio[0].status,
+                        audio_name=tab_generation.audio[0].audio_name,
+                        audio_duration=tab_generation.audio[0].audio_duration
+                    )
+                    if tab_generation.audio else None
+                )
             )
             for tab_generation in tab_generations
         ]
@@ -127,7 +130,6 @@ def get_all_tab_generations_of_a_tab(
             .filter(TabGeneration.tab_id == tab_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
             .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
-            .filter(Audio.audio_name.isnot(None))
             .all()
         )
 
@@ -142,11 +144,16 @@ def get_all_tab_generations_of_a_tab(
                     if tab_generation.text_entry
                     else None
                 ),
-                audio_name=(
-                    "".join(audio.audio_name for audio in tab_generation.audio)
-                    if tab_generation.audio
-                    else None
-                ),
+                audio=(
+                    AudioResponse(
+                        id=tab_generation.audio[0].id,
+                        text_entry_id=tab_generation.audio[0].text_entry_id,
+                        status=tab_generation.audio[0].status,
+                        audio_name=tab_generation.audio[0].audio_name,
+                        audio_duration=tab_generation.audio[0].audio_duration
+                    )
+                    if tab_generation.audio else None
+                )
             )
             for tab_generation in tab_generations
         ]
@@ -174,7 +181,6 @@ def get_tab_generation(
             .filter(TabGeneration.tab_id == tab_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
             .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
-            .filter(Audio.audio_name.isnot(None))
             .filter(TabGeneration.id == tab_generation_id)
             .first()
         )
@@ -191,12 +197,17 @@ def get_tab_generation(
                 if result.text_entry
                 else None
             ),
-            audio_name=(
-                "".join(audio.audio_name for audio in result.audio)
-                if result.audio
-                else None
-            ),
-            )
+            audio=(
+                    AudioResponse(
+                        id=result.audio[0].id,
+                        text_entry_id=result.audio[0].text_entry_id,
+                        status=result.audio[0].status,
+                        audio_name=result.audio[0].audio_name,
+                        audio_duration=result.audio[0].audio_duration
+                    )
+                    if result.audio else None
+                )
+        )
     except Exception as e:
         raise Exception(f"An error occurred while retrieving the tab generation: {e}")
 
@@ -220,7 +231,6 @@ def get_tab_generation_1st(
             .filter(TabGeneration.tab_id == tab_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
             .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
-            .filter(Audio.audio_name.isnot(None))
             .order_by(TabGeneration.created_at.desc())
             .first()
         )
@@ -237,12 +247,16 @@ def get_tab_generation_1st(
                 if result.text_entry
                 else None
             ),
-            audio_name=(
-                "".join(audio.audio_name for audio in result.audio)
-                if result.audio
-                else None
-            ),
-
+            audio=(
+                    AudioResponse(
+                        id=result.audio[0].id,
+                        text_entry_id=result.audio[0].text_entry_id,
+                        status=result.audio[0].status,
+                        audio_name=result.audio[0].audio_name,
+                        audio_duration=result.audio[0].audio_duration
+                    )
+                    if result.audio else None
+                )
         )
     except Exception as e:
         raise Exception(
