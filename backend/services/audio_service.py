@@ -55,7 +55,8 @@ def create_audio_template(
             user_id=text_entry.user_id,
             guest_id=text_entry.guest_id,
             status=AudioStatus.CREATED,
-            tab_generation_id=audio.tab_generation_id
+            tab_generation_id=audio.tab_generation_id,
+            voice_id=voice_id,
         )
 
         db.add(db_audio)
