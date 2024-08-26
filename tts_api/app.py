@@ -62,11 +62,8 @@ def add_voice():
     if not allowed_file(file.filename):
         return jsonify({"error": "File type not allowed"}), 400
 
-    # Create a unique voice name to avoid conflicts
-    unique_voice_name = f"{voice_name}_{uuid.uuid4().hex[:8]}"
-
     # Create user directory if it doesn't exist
-    user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id, unique_voice_name)
+    user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id, voice_name)
     os.makedirs(user_voice_dir, exist_ok=True)
 
     # Save the file temporarily
@@ -108,7 +105,7 @@ def add_voice():
             {
                 "message": "Voice sample uploaded and split successfully",
                 "user_id": user_id,
-                "voice_name": unique_voice_name,
+                "voice_name": voice_name,
                 "parts": ["1.wav", "2.wav", "3.wav"],
                 "total_length": len(audio) / 1000,  # Convert to seconds
             }
@@ -149,6 +146,77 @@ def list_voices(user_id):
         )
 
     return jsonify({"user_id": user_id, "voices": voice_details})
+
+
+@app.route("/delete_voice/<user_id>/<voice_name>", methods=["DELETE"])
+def delete_voice(user_id, voice_name):
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "Invalid user ID. Must be alphanumeric"}), 400
+
+    voice_dir = os.path.join(BASE_VOICES_DIR, user_id, voice_name)
+    if os.path.exists(voice_dir):
+        try:
+            shutil.rmtree(voice_dir)
+            return (
+                jsonify({"message": f"Voice '{voice_name}' deleted successfully"}),
+                200,
+            )
+        except Exception as e:
+            return jsonify({"error": f"Failed to delete voice: {str(e)}"}), 500
+    else:
+        return jsonify({"error": "Voice not found"}), 404
+
+
+@app.route("/delete_all_user_voices/<user_id>", methods=["DELETE"])
+def delete_all_user_voices(user_id):
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "Invalid user ID. Must be alphanumeric"}), 400
+
+    user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id)
+    if os.path.exists(user_voice_dir):
+        try:
+            shutil.rmtree(user_voice_dir)
+            os.makedirs(user_voice_dir)  # Recreate the empty directory
+            return (
+                jsonify(
+                    {"message": f"All voices for user '{user_id}' deleted successfully"}
+                ),
+                200,
+            )
+        except Exception as e:
+            return jsonify({"error": f"Failed to delete user voices: {str(e)}"}), 500
+    else:
+        return jsonify({"error": "User voice directory not found"}), 404
+
+
+@app.route("/delete_all_custom_voices", methods=["DELETE"])
+def delete_all_custom_voices():
+    try:
+        deleted_count = 0
+        for user_id in os.listdir(BASE_VOICES_DIR):
+            if user_id.isdigit():  # Check if the user_id is numeric
+                user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id)
+                if os.path.isdir(user_voice_dir):
+                    shutil.rmtree(user_voice_dir)
+                    os.makedirs(user_voice_dir)  # Recreate the empty directory
+                    deleted_count += 1
+
+        if deleted_count > 0:
+            return (
+                jsonify(
+                    {
+                        "message": f"Custom voices deleted for {deleted_count} numeric user(s) successfully"
+                    }
+                ),
+                200,
+            )
+        else:
+            return (
+                jsonify({"message": "No custom voices found for numeric user IDs"}),
+                200,
+            )
+    except Exception as e:
+        return jsonify({"error": f"Failed to delete custom voices: {str(e)}"}), 500
 
 
 # Create a queue to handle requests

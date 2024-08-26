@@ -23,3 +23,9 @@ curl -X POST -H "Content-Type: multipart/form-data" \
      -F "user_id=999" \
      -F "voice_name=thuy_minh" \
      http://localhost:8080/add_voice
+
+curl -X GET http://localhost:8080/list_voices/999
+
+curl -X DELETE http://localhost:8080/delete_voice/999/thuy_minh
+curl -X DELETE http://localhost:8080/delete_all_user_voices/999
+curl -X DELETE http://localhost:8080/delete_all_custom_voices
