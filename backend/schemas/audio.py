@@ -17,12 +17,15 @@ class AudioCreate(BaseModel):
     voice_id: Optional[int] = Field(
         None, description="The ID of the voice to use (if any)"
     )
+    tab_generation_id: int = Field(
+        ..., description="The ID of the associated tab generation"
+    )
 
 
 class AudioResponse(BaseModel):
     id: int = Field(..., description="The generated audio's unique identifier")
     text_entry_id: int = Field(..., description="The ID of the associated text entry")
-    
+
     voice_id: Optional[int] = Field(
         None, description="The ID of the voice used (if any)"
     )

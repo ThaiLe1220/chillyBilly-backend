@@ -52,7 +52,7 @@ async def create_audio(
     # Create initial empty audio entry
     db_audio = Audio(
         text_entry_id=audio.text_entry_id,
-        tab_generation_id=text_entry.tab_generation_id,
+        tab_generation_id=audio.tab_generation_id,
         voice_id=voice_id,
         user_id=text_entry.user_id,
         guest_id=text_entry.guest_id,
