@@ -294,7 +294,7 @@ def create_default_voices(db: Session, base_path: str) -> list[VoiceResponse]:
                 voice_name=voice["voice_name"],
                 original_file_path=file_path,
                 processed_file_path=file_path,
-                status="ready",
+                status=VoiceStatus.READY,
                 is_default=True,
                 language=voice["language"],
                 description=f"Default {voice['language'].upper()} {voice['gender'].capitalize()} voice",

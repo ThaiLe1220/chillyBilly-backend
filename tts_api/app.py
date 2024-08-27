@@ -20,7 +20,7 @@ from services.voice_service import VoiceService
 app = Flask(__name__)
 
 BASE_VOICES_DIR = "tts_api/tortoise/voices"
-MIN_AUDIO_LENGTH = 25
+MIN_AUDIO_LENGTH = 15
 
 voice_service = VoiceService(app, BASE_VOICES_DIR, MIN_AUDIO_LENGTH)
 

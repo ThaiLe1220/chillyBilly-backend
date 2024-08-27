@@ -59,6 +59,6 @@ async def delete_voice(user_id: int, voice_id: int, db: Session = Depends(get_db
 
 @router.post("/voices/create_defaults/", response_model=List[VoiceResponse])
 def create_default_voices(db: Session = Depends(get_db)):
-    base_path = "/path/to/default/voices"
+    base_path = "default"
     default_voices = voice_service.create_default_voices(db, base_path)
     return default_voices
