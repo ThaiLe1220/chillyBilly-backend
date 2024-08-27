@@ -136,10 +136,6 @@ curl -X POST "https://face-swap.12pmtech.link/api/v1/users/" \
      -H "Content-Type: application/json" \
      -d '{"username":"eugene", "email":"lehongthai2000@gmail.com", "password":"thai1220", "role":"REGULAR"}'
 
-curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/tabs" \
-     -H "Content-Type: application/json" \
-     -d '{"user_id": 1, "tab_name": "My First Tab"}' | jq '.'
-
 curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/voices/" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@/home/ubuntu/Desktop/eugene/tts_app/frontend/my-app/public/Thùy Minh.m4a" \
@@ -147,23 +143,19 @@ curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/voices/" \
   -F "language=vi" \
   -F "description=thuy minh voice" | jq '.'
 
-curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/tabs/1/tab_generations/" \
+
+curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/tabs" \
      -H "Content-Type: application/json" \
-     -d '{
-       "tab_id": 1,
-       "language": "en",
-       "voice_id": 1,
-       "text_entry_content": "This is my first generation"
-     }' | jq '.'
+     -d '{"user_id": 1, "tab_name": "My First Tab"}' | jq '.'
 
 curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/tabs/1/tab_generations/" \
      -H "Content-Type: application/json" \
      -d '{
-          "text_entry_content": "Dít ịt mai phớt den nơ rây sừn",
+          "tab_id": 1,
+          "text_entry_content": "Dít ịt mai phớt den nơ rây sừn, Dít ịt mai phớt den nơ rây sừn",
           "language": "vi",
-          "voice_id": 1
+          "voice_id": 5
      }' | jq '.'
-
 
 curl "https://face-swap.12pmtech.link/api/v1/users/1/text_entries/" | jq '.'
 curl "https://face-swap.12pmtech.link/api/v1/users/1/voices/?skip=0&limit=10" | jq '.'
@@ -171,3 +163,8 @@ curl "https://face-swap.12pmtech.link/api/v1/audios/?user_id=1" | jq '.'
 
 
 curl -X DELETE "https://face-swap.12pmtech.link/api/v1/users/1/voices/1" | jq '.'
+
+
+
+
+curl -X DELETE "http://localhost:8080/delete_all_audio"

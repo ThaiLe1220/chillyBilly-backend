@@ -1,3 +1,5 @@
+""" ./backend/services/tab_generation_service.py"""
+
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 from models.tab_generation import TabGeneration
@@ -54,8 +56,8 @@ async def create_tab_generation(
             text_entry_create = TextEntryCreate(
                 content=tab_generation_create.text_entry_content,
                 language=tab_generation_create.language,
-                tab_generation_id=tab_generation.id,
                 user_id=user_id,
+                tab_generation_id=tab_generation.id,
             )
             text_entry_created = text_entry_service.create_text_entry(
                 db, text_entry_create
@@ -65,7 +67,6 @@ async def create_tab_generation(
             audio_create = AudioCreate(
                 text_entry_id=text_entry_created.id,
                 voice_id=tab_generation_create.voice_id,
-                tab_generation_id=tab_generation.id,
             )
             audio_created = await audio_service.create_audio(
                 db=db, audio=audio_create, background_tasks=background_tasks

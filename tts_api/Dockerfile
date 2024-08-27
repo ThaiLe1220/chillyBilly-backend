@@ -55,7 +55,7 @@ COPY . .
 ENV PYTHONPATH="${PYTHONPATH}:/app"
 
 # Run the download script
-RUN python3 download_models.py
+# RUN python3 download_models.py
 
 # Copy the rest of the application
 COPY . .

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, BackgroundTasks
 from models import Audio, TextEntry, Voice
 from schemas.audio import AudioCreate, AudioResponse
+from models.voice import VoiceStatus
 from models.audio import AudioStatus
 from typing import List, Optional
 import asyncio
@@ -35,6 +36,8 @@ async def create_audio(
     voice = db.query(Voice).filter(Voice.id == voice_id).first()
     if not voice:
         raise HTTPException(status_code=404, detail="Voice not found")
+    else:
+        print("Voice found: ", voice.voice_name, voice.id, voice.status)
 
     if text_entry.guest_id is not None:
         raise HTTPException(status_code=403, detail="Guests cannot use custom voices")
@@ -43,7 +46,7 @@ async def create_audio(
         raise HTTPException(status_code=403, detail="Cannot use another user's voice")
 
     # Check if voice is ready
-    if voice.status != "ready":
+    if voice.status != VoiceStatus.READY:
         raise HTTPException(status_code=400, detail="Voice is not ready for use")
 
     # Create initial empty audio entry
@@ -53,7 +56,6 @@ async def create_audio(
         user_id=text_entry.user_id,
         guest_id=text_entry.guest_id,
         status=AudioStatus.CREATED,
-        tab_generation_id=audio.tab_generation_id,
     )
 
     db.add(db_audio)

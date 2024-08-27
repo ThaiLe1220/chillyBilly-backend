@@ -1,6 +1,7 @@
 import os
 from glob import glob
-from typing import Dict, List
+import re
+from typing import Dict, List, Tuple, Optional
 
 import librosa
 import numpy as np
@@ -9,10 +10,14 @@ import torchaudio
 from scipy.io.wavfile import read
 
 from tortoise.utils.stft import STFT
+import logging
 
-BUILTIN_VOICES_DIR = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "../voices"
-)
+logging.basicConfig(level=logging.DEBUG)
+
+# BUILTIN_VOICES_DIR = os.path.join(
+#     os.path.dirname(os.path.realpath(__file__)), "../voices"
+# )
+BUILTIN_VOICES_DIR = "/app/tts_api/tortoise/voices"
 
 
 def load_wav_to_torch(full_path):
@@ -111,27 +116,59 @@ def dynamic_range_decompression(x, C=1):
     return torch.exp(x) / C
 
 
-def get_voices(extra_voice_dirs: List[str] = []):
+def is_user_voice_format(voice_name: str) -> bool:
+    return bool(re.match(r"^\d+$", voice_name))
+
+
+def get_voices(extra_voice_dirs: List[str] = []) -> Dict[str, List[str]]:
     dirs = [BUILTIN_VOICES_DIR] + extra_voice_dirs
     voices: Dict[str, List[str]] = {}
     for d in dirs:
-        subs = os.listdir(d)
-        for sub in subs:
-            subj = os.path.join(d, sub)
-            if os.path.isdir(subj):
-                voices[sub] = (
-                    list(glob(f"{subj}/*.wav"))
-                    + list(glob(f"{subj}/*.mp3"))
-                    + list(glob(f"{subj}/*.pth"))
-                )
+        logging.debug("Searching directory: %s", d)
+        for item in os.listdir(d):
+            item_path = os.path.join(d, item)
+            logging.debug("Checking item: %s", item_path)
+            if os.path.isdir(item_path):
+                if is_user_voice_format(item):  # This is a user ID directory
+                    for voice_name in os.listdir(item_path):
+                        voice_dir = os.path.join(item_path, voice_name)
+                        if os.path.isdir(voice_dir):
+                            voice_key = f"{item}/{voice_name}"
+                            voices[voice_key] = get_audio_files(voice_dir)
+                            logging.debug(
+                                "Added user voice: %s with files: %s",
+                                voice_key,
+                                voices[voice_key],
+                            )
+                else:  # This is a default voice directory
+                    voices[item] = get_audio_files(item_path)
+                    logging.debug(
+                        "Added default voice: %s with files: %s", item, voices[item]
+                    )
+    logging.debug("Final voices dictionary: %s", voices)
     return voices
 
 
-def load_voice(voice: str, extra_voice_dirs: List[str] = []):
+def get_audio_files(directory: str) -> List[str]:
+    files = (
+        glob(f"{directory}/*.wav")
+        + glob(f"{directory}/*.mp3")
+        + glob(f"{directory}/*.pth")
+    )
+    logging.debug("Audio files found in %s: %s", directory, files)
+    return files
+
+
+def load_voice(
+    voice: str, extra_voice_dirs: List[str] = []
+) -> Tuple[Optional[List], Optional[torch.Tensor]]:
     if voice == "random":
         return None, None
-
     voices = get_voices(extra_voice_dirs)
+    logging.debug("Attempting to load voice: %s", voice)
+    logging.debug("Available voices: %s", list(voices.keys()))
+    if voice not in voices:
+        raise ValueError(f"Voice '{voice}' not found")
     paths = voices[voice]
     if len(paths) == 1 and paths[0].endswith(".pth"):
         return None, torch.load(paths[0])
