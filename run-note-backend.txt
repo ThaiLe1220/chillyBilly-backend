@@ -152,7 +152,7 @@ curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/tabs/1/tab_generati
      -H "Content-Type: application/json" \
      -d '{
           "tab_id": 1,
-          "text_entry_content": "Dít ịt mai phớt den nơ rây sừn, Dít ịt mai phớt den nơ rây sừn",
+          "text_entry_content": "Dít ịt mai phớt den nơ rây sừn",
           "language": "vi",
           "voice_id": 5
      }' | jq '.'
@@ -165,6 +165,7 @@ curl "https://face-swap.12pmtech.link/api/v1/audios/?user_id=1" | jq '.'
 curl -X DELETE "https://face-swap.12pmtech.link/api/v1/users/1/voices/1" | jq '.'
 
 
+curl "https://face-swap.12pmtech.link/api/v1/users/1/tabs/1/tab_generations/" | jq '.'
 
 
 curl -X DELETE "http://localhost:8080/delete_all_audio"
