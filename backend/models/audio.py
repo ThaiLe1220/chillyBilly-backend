@@ -35,25 +35,27 @@ class Audio(Base):
         Integer, ForeignKey("text_entry.id"), nullable=False, index=True
     )
     voice_id = Column(Integer, ForeignKey("voice.id"), nullable=True)
+
+    audio_duration = Column(Float, nullable=True)
+    audio_name = Column(String, nullable=True)
     audio_path = Column(String, nullable=True)
     audio_size = Column(Integer, nullable=True)
-    audio_duration = Column(Float, nullable=True)
+    audio_wavelength = Column(Float, nullable=True)
+    delete_url = Column(String, nullable=True)
+    download_url = Column(String, nullable=True)
+    generation_time = Column(Float, nullable=True)
+    language = Column(String, nullable=True)
+    message = Column(String, nullable=True)
+    mime_type = Column(String, nullable=True)
+    preset = Column(String, nullable=True)
+    sample_rate = Column(Integer, nullable=True)
+    text_length = Column(Integer, nullable=True)
+    timestamp = Column(Integer, nullable=True)
+    voice_name = Column(String, nullable=True)
+
     status = Column(Enum(AudioStatus), default=AudioStatus.CREATED, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    mime_type = Column(String, nullable=True)
-    sample_rate = Column(Integer, nullable=True)
-    file_url = Column(String, nullable=True)
-    delete_url = Column(String, nullable=True)
-
-    # New fields
-    audio_name = Column(String, nullable=True)
-    generation_time = Column(Float, nullable=True)
-    language = Column(String, nullable=True)
-    preset = Column(String, nullable=True)
-    text_length = Column(Integer, nullable=True)
-    voice_name = Column(String, nullable=True)
 
     user = relationship("User", back_populates="audio")
     guest = relationship("Guest", back_populates="audio")

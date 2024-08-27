@@ -4,7 +4,7 @@ docker compose run tts-api nvcc --version
 
 curl http://localhost:8080/health
 
-curl -X POST http://localhost:8080/generate_audio -H "Content-Type: application/json" -d '{"text": "Hello, this is a test.", "lang": "en", "voice_name": "default_en_male", "user_id": "testuser123", "user_type": "user", "preset": "ultra_fast"}'
+curl -X POST http://localhost:8080/generate_audio -H "Content-Type: application/json" -d '{"text": "Hello, this is a test.", "lang": "en", "voice_name": "default_en_male", "user_id": "testuser123", "user_type": "user", "preset": "ultra_fast"}' | jq '.'
 
 curl -OJ "http://localhost:8080/download/user/testuser123/1724482746_default_en_male_f8119e83.wav"
 

@@ -22,18 +22,54 @@ class AudioCreate(BaseModel):
 class AudioResponse(BaseModel):
     id: int = Field(..., description="The generated audio's unique identifier")
     text_entry_id: int = Field(..., description="The ID of the associated text entry")
+    
     voice_id: Optional[int] = Field(
         None, description="The ID of the voice used (if any)"
-    )
-    audio_path: Optional[str] = Field(
-        None, description="The path to the generated audio file"
     )
     audio_duration: Optional[float] = Field(
         None, description="The duration of the audio in seconds"
     )
+    audio_name: Optional[str] = Field(
+        None, description="The name of the generated audio file"
+    )
+    audio_path: Optional[str] = Field(
+        None, description="The path to the generated audio file"
+    )
     audio_size: Optional[int] = Field(
         None, description="The size of the audio file in bytes"
     )
+    audio_wavelength: Optional[float] = Field(
+        None, description="The wavelength of the audio"
+    )
+    delete_url: Optional[str] = Field(
+        None, description="The URL to delete the audio file"
+    )
+    download_url: Optional[str] = Field(
+        None, description="The URL to download the audio file"
+    )
+    generation_time: Optional[float] = Field(
+        None, description="The time taken to generate the audio in seconds"
+    )
+    language: Optional[str] = Field(
+        None, description="The language of the generated audio"
+    )
+    message: Optional[str] = Field(
+        None, description="A message about the audio generation process"
+    )
+    mime_type: Optional[str] = Field(
+        None, description="The MIME type of the audio file"
+    )
+    preset: Optional[str] = Field(
+        None, description="The preset used for audio generation"
+    )
+    sample_rate: Optional[int] = Field(
+        None, description="The sample rate of the audio file"
+    )
+    text_length: Optional[int] = Field(None, description="The length of the input text")
+    timestamp: Optional[int] = Field(
+        None, description="The timestamp of audio generation"
+    )
+    voice_name: Optional[str] = Field(None, description="The name of the voice used")
     status: AudioStatus = Field(..., description="The current status of the audio")
     created_at: Optional[datetime] = Field(
         None, description="The creation timestamp of the generated audio"
@@ -41,67 +77,6 @@ class AudioResponse(BaseModel):
     updated_at: Optional[datetime] = Field(
         None, description="The last update timestamp of the generated audio"
     )
-    mime_type: Optional[str] = Field(
-        None, description="The MIME type of the audio file"
-    )
-    sample_rate: Optional[int] = Field(
-        None, description="The sample rate of the audio file"
-    )
-    file_url: Optional[str] = Field(
-        None, description="The URL to download the audio file"
-    )
-    delete_url: Optional[str] = Field(
-        None, description="The URL to delete the audio file"
-    )
-    audio_name: Optional[str] = Field(
-        None, description="The name of the generated audio file"
-    )
-    generation_time: Optional[float] = Field(
-        None, description="The time taken to generate the audio"
-    )
-    language: Optional[str] = Field(
-        None, description="The language of the generated audio"
-    )
-    preset: Optional[str] = Field(
-        None, description="The preset used for audio generation"
-    )
-    text_length: Optional[int] = Field(None, description="The length of the input text")
-    voice_name: Optional[str] = Field(None, description="The name of the voice used")
-
-    # @validator("audio_duration")
-    # @classmethod
-    # def audio_duration_must_be_positive(cls, v):
-    #     if v is not None and v <= 0:
-    #         raise ValueError("Audio duration must be positive")
-    #     return v
-
-    # @validator("audio_size")
-    # @classmethod
-    # def audio_size_must_be_positive(cls, v):
-    #     if v is not None and v <= 0:
-    #         raise ValueError("Audio size must be positive")
-    #     return v
-
-    # @validator("sample_rate")
-    # @classmethod
-    # def sample_rate_must_be_positive(cls, v):
-    #     if v is not None and v <= 0:
-    #         raise ValueError("Sample rate must be positive")
-    #     return v
-
-    # @validator("generation_time")
-    # @classmethod
-    # def generation_time_must_be_positive(cls, v):
-    #     if v is not None and v <= 0:
-    #         raise ValueError("Generation time must be positive")
-    #     return v
-
-    # @validator("text_length")
-    # @classmethod
-    # def text_length_must_be_positive(cls, v):
-    #     if v is not None and v <= 0:
-    #         raise ValueError("Text length must be positive")
-    #     return v
 
     class Config:
         from_attributes = True

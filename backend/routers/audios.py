@@ -34,16 +34,6 @@ async def get_audios(
     return await audio_service.get_audios(db, user_id, guest_id, status)
 
 
-@router.get("/all-audios/", response_model=List[AudioResponse])
-async def get_all_audios(
-    user_id: Optional[int] = Query(None),
-    guest_id: Optional[int] = Query(None),
-    status: Optional[AudioStatus] = Query(None),
-    db: Session = Depends(get_db),
-):
-    return await audio_service.get_all_audios(db, user_id, guest_id, status)
-
-
 @router.delete("/audios/{audio_id}")
 async def delete_audio(audio_id: int, db: Session = Depends(get_db)):
     try:
@@ -54,13 +44,3 @@ async def delete_audio(audio_id: int, db: Session = Depends(get_db)):
         )
     except HTTPException as e:
         return JSONResponse(status_code=e.status_code, content={"detail": e.detail})
-
-
-@router.patch("/audios/{audio_id}/status", response_model=AudioResponse)
-async def update_audio_status(
-    audio_id: int, status: AudioStatus, db: Session = Depends(get_db)
-):
-    updated_audio = await audio_service.update_audio_status(db, audio_id, status)
-    if updated_audio is None:
-        raise HTTPException(status_code=404, detail="Audio not found")
-    return updated_audio

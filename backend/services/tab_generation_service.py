@@ -1,5 +1,3 @@
-""" ./backend/services/tab_generation_service.py"""
-
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 from models.tab_generation import TabGeneration
@@ -56,8 +54,8 @@ async def create_tab_generation(
             text_entry_create = TextEntryCreate(
                 content=tab_generation_create.text_entry_content,
                 language=tab_generation_create.language,
-                user_id=user_id,
                 tab_generation_id=tab_generation.id,
+                user_id=user_id,
             )
             text_entry_created = text_entry_service.create_text_entry(
                 db, text_entry_create
@@ -67,6 +65,7 @@ async def create_tab_generation(
             audio_create = AudioCreate(
                 text_entry_id=text_entry_created.id,
                 voice_id=tab_generation_create.voice_id,
+                tab_generation_id=tab_generation.id,
             )
             audio_created = await audio_service.create_audio(
                 db=db, audio=audio_create, background_tasks=background_tasks
@@ -112,9 +111,26 @@ def get_all_tab_generations_of_user(
                     AudioResponse(
                         id=tab_generation.audio[0].id,
                         text_entry_id=tab_generation.audio[0].text_entry_id,
-                        status=tab_generation.audio[0].status,
-                        audio_name=tab_generation.audio[0].audio_name,
+                        voice_id=tab_generation.audio[0].voice_id,
                         audio_duration=tab_generation.audio[0].audio_duration,
+                        audio_name=tab_generation.audio[0].audio_name,
+                        audio_path=tab_generation.audio[0].audio_path,
+                        audio_size=tab_generation.audio[0].audio_size,
+                        audio_wavelength=tab_generation.audio[0].audio_wavelength,
+                        delete_url=tab_generation.audio[0].delete_url,
+                        download_url=tab_generation.audio[0].download_url,
+                        generation_time=tab_generation.audio[0].generation_time,
+                        language=tab_generation.audio[0].language,
+                        message=tab_generation.audio[0].message,
+                        mime_type=tab_generation.audio[0].mime_type,
+                        preset=tab_generation.audio[0].preset,
+                        sample_rate=tab_generation.audio[0].sample_rate,
+                        text_length=tab_generation.audio[0].text_length,
+                        timestamp=tab_generation.audio[0].timestamp,
+                        voice_name=tab_generation.audio[0].voice_name,
+                        status=tab_generation.audio[0].status,
+                        created_at=tab_generation.audio[0].created_at,
+                        updated_at=tab_generation.audio[0].updated_at,
                     )
                     if tab_generation.audio
                     else None
@@ -156,9 +172,26 @@ def get_all_tab_generations_of_a_tab(
                     AudioResponse(
                         id=tab_generation.audio[0].id,
                         text_entry_id=tab_generation.audio[0].text_entry_id,
-                        status=tab_generation.audio[0].status,
-                        audio_name=tab_generation.audio[0].audio_name,
+                        voice_id=tab_generation.audio[0].voice_id,
                         audio_duration=tab_generation.audio[0].audio_duration,
+                        audio_name=tab_generation.audio[0].audio_name,
+                        audio_path=tab_generation.audio[0].audio_path,
+                        audio_size=tab_generation.audio[0].audio_size,
+                        audio_wavelength=tab_generation.audio[0].audio_wavelength,
+                        delete_url=tab_generation.audio[0].delete_url,
+                        download_url=tab_generation.audio[0].download_url,
+                        generation_time=tab_generation.audio[0].generation_time,
+                        language=tab_generation.audio[0].language,
+                        message=tab_generation.audio[0].message,
+                        mime_type=tab_generation.audio[0].mime_type,
+                        preset=tab_generation.audio[0].preset,
+                        sample_rate=tab_generation.audio[0].sample_rate,
+                        text_length=tab_generation.audio[0].text_length,
+                        timestamp=tab_generation.audio[0].timestamp,
+                        voice_name=tab_generation.audio[0].voice_name,
+                        status=tab_generation.audio[0].status,
+                        created_at=tab_generation.audio[0].created_at,
+                        updated_at=tab_generation.audio[0].updated_at,
                     )
                     if tab_generation.audio
                     else None
@@ -197,6 +230,13 @@ def get_tab_generation(
         if not result:
             return None
 
+        print(f"Debug: TabGeneration ID: {result.id}")
+        print(f"Debug: Audio: {result.audio}")
+        if result.audio:
+            print(f"Debug: Audio ID: {result.audio.id}")
+            print(f"Debug: Audio text_entry_id: {result.audio.text_entry_id}")
+            print(f"Debug: Audio status: {result.audio.status}")
+
         return TabGenerationResponse(
             id=result.id,
             tab_id=result.tab_id,
@@ -210,9 +250,26 @@ def get_tab_generation(
                 AudioResponse(
                     id=result.audio[0].id,
                     text_entry_id=result.audio[0].text_entry_id,
-                    status=result.audio[0].status,
-                    audio_name=result.audio[0].audio_name,
+                    voice_id=result.audio[0].voice_id,
                     audio_duration=result.audio[0].audio_duration,
+                    audio_name=result.audio[0].audio_name,
+                    audio_path=result.audio[0].audio_path,
+                    audio_size=result.audio[0].audio_size,
+                    audio_wavelength=result.audio[0].audio_wavelength,
+                    delete_url=result.audio[0].delete_url,
+                    download_url=result.audio[0].download_url,
+                    generation_time=result.audio[0].generation_time,
+                    language=result.audio[0].language,
+                    message=result.audio[0].message,
+                    mime_type=result.audio[0].mime_type,
+                    preset=result.audio[0].preset,
+                    sample_rate=result.audio[0].sample_rate,
+                    text_length=result.audio[0].text_length,
+                    timestamp=result.audio[0].timestamp,
+                    voice_name=result.audio[0].voice_name,
+                    status=result.audio[0].status,
+                    created_at=result.audio[0].created_at,
+                    updated_at=result.audio[0].updated_at,
                 )
                 if result.audio
                 else None
@@ -248,6 +305,13 @@ def get_tab_generation_1st(
         if not result:
             return None
 
+        print(f"Debug: TabGeneration ID: {result.id}")
+        print(f"Debug: Audio: {result.audio}")
+        if result.audio:
+            print(f"Debug: Audio ID: {result.audio.id}")
+            print(f"Debug: Audio text_entry_id: {result.audio.text_entry_id}")
+            print(f"Debug: Audio status: {result.audio.status}")
+
         return TabGenerationResponse(
             id=result.id,
             tab_id=result.tab_id,
@@ -261,9 +325,26 @@ def get_tab_generation_1st(
                 AudioResponse(
                     id=result.audio[0].id,
                     text_entry_id=result.audio[0].text_entry_id,
-                    status=result.audio[0].status,
-                    audio_name=result.audio[0].audio_name,
+                    voice_id=result.audio[0].voice_id,
                     audio_duration=result.audio[0].audio_duration,
+                    audio_name=result.audio[0].audio_name,
+                    audio_path=result.audio[0].audio_path,
+                    audio_size=result.audio[0].audio_size,
+                    audio_wavelength=result.audio[0].audio_wavelength,
+                    delete_url=result.audio[0].delete_url,
+                    download_url=result.audio[0].download_url,
+                    generation_time=result.audio[0].generation_time,
+                    language=result.audio[0].language,
+                    message=result.audio[0].message,
+                    mime_type=result.audio[0].mime_type,
+                    preset=result.audio[0].preset,
+                    sample_rate=result.audio[0].sample_rate,
+                    text_length=result.audio[0].text_length,
+                    timestamp=result.audio[0].timestamp,
+                    voice_name=result.audio[0].voice_name,
+                    status=result.audio[0].status,
+                    created_at=result.audio[0].created_at,
+                    updated_at=result.audio[0].updated_at,
                 )
                 if result.audio
                 else None
