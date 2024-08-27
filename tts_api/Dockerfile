@@ -8,7 +8,9 @@ ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
     CUDA_HOME=/usr/local/cuda \
     PATH=${CUDA_HOME}/bin:${PATH} \
-    LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+    LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH} \
+    TORTOISE_MODELS_DIR=/root/.cache/tortoise/models
+
 
 ARG HF_TOKEN
 ENV HF_TOKEN=${HF_TOKEN}
@@ -46,11 +48,8 @@ COPY requirements-new.txt .
 # Install dependencies
 RUN pip3 install -r requirements-new.txt
 
-# Copy the entire tortoise directory
-COPY tortoise ./tortoise
-
-# Copy the download script
-COPY download_models.py .
+# Copy the entire application
+COPY . .
 
 # Set PYTHONPATH to include the current directory
 ENV PYTHONPATH="${PYTHONPATH}:/app"

@@ -1,4 +1,4 @@
-# ./tts_api.py/download_models.py
+# ./tts_api/download_models.py
 
 import os
 import sys
