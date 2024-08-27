@@ -149,5 +149,16 @@ curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/tabs/1/tab_generati
        "text_entry_content": "This is my first generation"
      }' | jq '.'
 
+curl -X POST "https://face-swap.12pmtech.link/api/v1/users/1/voices/" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@/home/ubuntu/Desktop/eugene/tts_app/frontend/my-app/public/Thùy Minh.m4a" \
+  -F "voice_name=thuy_minh" \
+  -F "language=vi" \
+  -F "description=thuy minh voice"
+
+
 curl "https://face-swap.12pmtech.link/api/v1/users/1/text_entries/" | jq '.'
 curl "https://face-swap.12pmtech.link/api/v1/audios/?user_id=1" | jq '.'
+curl "https://face-swap.12pmtech.link/api/v1/users/1/voices/?skip=0&limit=10" | jq '.'
+curl -X DELETE "https://face-swap.12pmtech.link/api/v1/users/1/voices/1" | jq '.'
+

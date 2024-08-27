@@ -15,208 +15,39 @@ import shutil
 from werkzeug.utils import secure_filename
 from pydub import AudioSegment
 
+from services.voice_service import VoiceService
+
 app = Flask(__name__)
 
-
-MIN_AUDIO_LENGTH = 25  # minimum length in seconds
-
-# Base output directory
-BASE_OUTPUT_DIR = "output"
 BASE_VOICES_DIR = "tts_api/tortoise/voices"
-ALLOWED_EXTENSIONS = {"wav", "mp3", "ogg", "flac", "m4a"}
+MIN_AUDIO_LENGTH = 25
 
-DEFAULT_VOICES = [
-    "default_en_male",
-    "default_en_female",
-    "default_vi_male",
-    "default_vi_female",
-]
-
-# Load TextToSpeech models
-tts = TextToSpeech()
-tts_vi = TextToSpeech(lang="vi")
-
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+voice_service = VoiceService(app, BASE_VOICES_DIR, MIN_AUDIO_LENGTH)
 
 
 @app.route("/add_voice", methods=["POST"])
 def add_voice():
-    if "file" not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
-    file = request.files["file"]
-    user_id = request.form.get("user_id")
-    voice_name = request.form.get("voice_name")
-
-    if not file or file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
-
-    if not user_id or not voice_name:
-        return jsonify({"error": "User ID and voice name are required"}), 400
-
-    if not is_valid_user_id(user_id):
-        return jsonify({"error": "Invalid user ID. Must be alphanumeric"}), 400
-
-    if not allowed_file(file.filename):
-        return jsonify({"error": "File type not allowed"}), 400
-
-    # Create user directory if it doesn't exist
-    user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id, voice_name)
-    os.makedirs(user_voice_dir, exist_ok=True)
-
-    # Save the file temporarily
-    temp_filename = secure_filename(file.filename)
-    temp_file_path = os.path.join(user_voice_dir, temp_filename)
-    file.save(temp_file_path)
-
-    # Load the audio file
-    audio = AudioSegment.from_file(temp_file_path)
-
-    # Check if the audio is longer than 25 seconds
-    if len(audio) < MIN_AUDIO_LENGTH * 1000:  # pydub works in milliseconds
-        os.remove(temp_file_path)
-        return (
-            jsonify(
-                {
-                    "error": f"Audio file must be at least {MIN_AUDIO_LENGTH} seconds long"
-                }
-            ),
-            400,
-        )
-
-    # Split the audio into three parts
-    part_length = len(audio) // 3
-    part1 = audio[:part_length]
-    part2 = audio[part_length : 2 * part_length]
-    part3 = audio[2 * part_length :]
-
-    # Save the three parts
-    part1.export(os.path.join(user_voice_dir, "1.wav"), format="wav")
-    part2.export(os.path.join(user_voice_dir, "2.wav"), format="wav")
-    part3.export(os.path.join(user_voice_dir, "3.wav"), format="wav")
-
-    # Remove the temporary file
-    os.remove(temp_file_path)
-
-    return (
-        jsonify(
-            {
-                "message": "Voice sample uploaded and split successfully",
-                "user_id": user_id,
-                "voice_name": voice_name,
-                "parts": ["1.wav", "2.wav", "3.wav"],
-                "total_length": len(audio) / 1000,  # Convert to seconds
-            }
-        ),
-        201,
-    )
+    return voice_service.add_voice(request)
 
 
-# Modify the get_user_voices function to reflect the new structure
-def get_user_voices(user_id):
-    user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id)
-    if not os.path.exists(user_voice_dir):
-        return []
-    return [
-        d
-        for d in os.listdir(user_voice_dir)
-        if os.path.isdir(os.path.join(user_voice_dir, d))
-    ]
-
-
-# Modify the list_voices route to provide more details
 @app.route("/list_voices/<user_id>", methods=["GET"])
 def list_voices(user_id):
-    if not is_valid_user_id(user_id):
-        return jsonify({"error": "Invalid user ID. Must be alphanumeric"}), 400
-
-    voices = get_user_voices(user_id)
-    voice_details = []
-    for voice in voices:
-        voice_dir = os.path.join(BASE_VOICES_DIR, user_id, voice)
-        parts = [f for f in os.listdir(voice_dir) if f.endswith(".wav")]
-        total_length = sum(
-            AudioSegment.from_wav(os.path.join(voice_dir, part)).duration_seconds
-            for part in parts
-        )
-        voice_details.append(
-            {"name": voice, "parts": parts, "total_length": total_length}
-        )
-
-    return jsonify({"user_id": user_id, "voices": voice_details})
+    return voice_service.list_voices(user_id)
 
 
 @app.route("/delete_voice/<user_id>/<voice_name>", methods=["DELETE"])
 def delete_voice(user_id, voice_name):
-    if not is_valid_user_id(user_id):
-        return jsonify({"error": "Invalid user ID. Must be alphanumeric"}), 400
-
-    voice_dir = os.path.join(BASE_VOICES_DIR, user_id, voice_name)
-    if os.path.exists(voice_dir):
-        try:
-            shutil.rmtree(voice_dir)
-            return (
-                jsonify({"message": f"Voice '{voice_name}' deleted successfully"}),
-                200,
-            )
-        except Exception as e:
-            return jsonify({"error": f"Failed to delete voice: {str(e)}"}), 500
-    else:
-        return jsonify({"error": "Voice not found"}), 404
+    return voice_service.delete_voice(user_id, voice_name)
 
 
 @app.route("/delete_all_user_voices/<user_id>", methods=["DELETE"])
 def delete_all_user_voices(user_id):
-    if not is_valid_user_id(user_id):
-        return jsonify({"error": "Invalid user ID. Must be alphanumeric"}), 400
-
-    user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id)
-    if os.path.exists(user_voice_dir):
-        try:
-            shutil.rmtree(user_voice_dir)
-            os.makedirs(user_voice_dir)  # Recreate the empty directory
-            return (
-                jsonify(
-                    {"message": f"All voices for user '{user_id}' deleted successfully"}
-                ),
-                200,
-            )
-        except Exception as e:
-            return jsonify({"error": f"Failed to delete user voices: {str(e)}"}), 500
-    else:
-        return jsonify({"error": "User voice directory not found"}), 404
+    return voice_service.delete_all_user_voices(user_id)
 
 
 @app.route("/delete_all_custom_voices", methods=["DELETE"])
 def delete_all_custom_voices():
-    try:
-        deleted_count = 0
-        for user_id in os.listdir(BASE_VOICES_DIR):
-            if user_id.isdigit():  # Check if the user_id is numeric
-                user_voice_dir = os.path.join(BASE_VOICES_DIR, user_id)
-                if os.path.isdir(user_voice_dir):
-                    shutil.rmtree(user_voice_dir)
-                    os.makedirs(user_voice_dir)  # Recreate the empty directory
-                    deleted_count += 1
-
-        if deleted_count > 0:
-            return (
-                jsonify(
-                    {
-                        "message": f"Custom voices deleted for {deleted_count} numeric user(s) successfully"
-                    }
-                ),
-                200,
-            )
-        else:
-            return (
-                jsonify({"message": "No custom voices found for numeric user IDs"}),
-                200,
-            )
-    except Exception as e:
-        return jsonify({"error": f"Failed to delete custom voices: {str(e)}"}), 500
+    return voice_service.delete_all_custom_voices()
 
 
 # Create a queue to handle requests
@@ -263,6 +94,18 @@ def process_queue():
         finally:
             request_queue.task_done()
 
+
+# Load TextToSpeech models
+tts = TextToSpeech()
+tts_vi = TextToSpeech(lang="vi")
+
+DEFAULT_VOICES = [
+    "default_en_male",
+    "default_en_female",
+    "default_vi_male",
+    "default_vi_female",
+]
+BASE_OUTPUT_DIR = "output"
 
 # Start a thread to process the queue
 threading.Thread(target=process_queue, daemon=True).start()
