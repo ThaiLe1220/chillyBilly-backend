@@ -96,7 +96,7 @@ async def process_audio(db: Session, audio_id: int, text_entry_id: int, voice_id
             str(text_entry.user_id) if text_entry.user_id else str(text_entry.guest_id)
         ),
         "user_type": "user" if text_entry.user_id else "guest",
-        "preset": "ultra_fast",
+        "preset": "high_quality",  # was ultra_fast | very_fast | fast | standard | high_quality
     }
 
     max_retries = 500

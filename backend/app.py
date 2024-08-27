@@ -51,9 +51,9 @@ def resource_request(method, url):
 
 
 # Drop all tables - careful with this
-Base.metadata.drop_all(bind=engine)
-resource_request("DELETE", URL_DELETE_CUSTOM_VOICES)
-resource_request("DELETE", URL_DELETE_AUDIO)
+# Base.metadata.drop_all(bind=engine)
+# resource_request("DELETE", URL_DELETE_CUSTOM_VOICES)
+# resource_request("DELETE", URL_DELETE_AUDIO)
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
