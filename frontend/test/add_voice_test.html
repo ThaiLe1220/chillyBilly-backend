@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Upload</title>
+    <script defer src="script.js"></script> <!-- Link to external JavaScript file -->
+</head>
+<body>
+    <form id="uploadForm">
+        <input type="file" id="audioFile" accept="audio/*" required />
+        <input type="text" id="voiceName" placeholder="Voice Name" required />
+        <input type="text" id="language" placeholder="Language" required />
+        <textarea id="description" placeholder="Description"></textarea>
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const audioFile = document.getElementById('audioFile').files[0];
+            const voiceName = document.getElementById('voiceName').value;
+            const language = document.getElementById('language').value;
+            const description = document.getElementById('description').value;
+
+            const formData = new FormData();
+            formData.append('file', audioFile);
+            formData.append('voice_name', voiceName);
+            formData.append('language', language);
+            formData.append('description', description);
+
+            try {
+                const response = await fetch('https://face-swap.12pmtech.link/api/v1/users/1/voices/', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+
+                const data = await response.json();
+                console.log('Success:', data);
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        });
+    </script>
+</body>
+</html>
