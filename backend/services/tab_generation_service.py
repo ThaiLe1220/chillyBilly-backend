@@ -11,6 +11,7 @@ from schemas.audio import AudioCreate, AudioResponse
 from services import text_entry_service, audio_service
 from datetime import datetime
 from typing import Optional, List
+import logging
 
 
 def verify_user_exists(user_id: int, db: Session) -> bool:
@@ -178,7 +179,9 @@ def get_all_tab_generations_of_a_tab(
 def get_tab_generation(
     tab_generation_id: int, user_id: int, tab_id: int, db: Session
 ) -> Optional[TabGenerationResponse]:
-
+    logging.info(
+        f"Attempting to get tab generation for user_id: {user_id}, tab_id: {tab_id}"
+    )
     # Verify that the user and tab exist
     if not verify_user_exists(user_id, db):
         raise ValueError("User not found")
@@ -188,26 +191,36 @@ def get_tab_generation(
 
     try:
         # Query for all tab generations filtered by user_id and tab_id, joining with TextEntry
-        result = (
+        query = (
             db.query(TabGeneration)
             .join(Tab, TabGeneration.tab_id == Tab.id)
             .filter(Tab.user_id == user_id)
             .filter(TabGeneration.tab_id == tab_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
             .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
-            .filter(TabGeneration.id == tab_generation_id)
-            .first()
+            .order_by(TabGeneration.created_at.desc())
         )
+
+        logging.debug(f"SQL Query: {query.statement}")
+
+        result = query.first()
 
         if not result:
             return None
 
         print(f"Debug: TabGeneration ID: {result.id}")
         print(f"Debug: Audio: {result.audio}")
+
         if result.audio:
-            print(f"Debug: Audio ID: {result.audio.id}")
-            print(f"Debug: Audio text_entry_id: {result.audio.text_entry_id}")
-            print(f"Debug: Audio status: {result.audio.status}")
+            logging.info(
+                f"Debug: Audio ID: {result.audio[0].id if result.audio else 'No audio'}"
+            )
+            logging.info(
+                f"Debug: Audio text_entry_id: {result.audio[0].text_entry_id if result.audio else 'No audio'}"
+            )
+            logging.info(
+                f"Debug: Audio status: {result.audio[0].status if result.audio else 'No audio'}"
+            )
 
         return TabGenerationResponse(
             id=result.id,
@@ -240,6 +253,10 @@ def get_tab_generation(
 def get_tab_generation_1st(
     user_id: int, tab_id: int, db: Session
 ) -> Optional[TabGenerationResponse]:
+    logging.info(
+        f"Attempting to get first tab generation for user_id: {user_id}, tab_id: {tab_id}"
+    )
+
     # Verify that the user and tab exist
     if not verify_user_exists(user_id, db):
         raise ValueError("User not found")
@@ -249,7 +266,7 @@ def get_tab_generation_1st(
 
     try:
         # Query for all tab generations filtered by user_id and tab_id, joining with TextEntry
-        result = (
+        query = (
             db.query(TabGeneration)
             .join(Tab, TabGeneration.tab_id == Tab.id)
             .filter(Tab.user_id == user_id)
@@ -257,18 +274,28 @@ def get_tab_generation_1st(
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
             .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
             .order_by(TabGeneration.created_at.desc())
-            .first()
         )
+
+        logging.debug(f"SQL Query: {query.statement}")
+
+        result = query.first()
 
         if not result:
             return None
 
         print(f"Debug: TabGeneration ID: {result.id}")
         print(f"Debug: Audio: {result.audio}")
+
         if result.audio:
-            print(f"Debug: Audio ID: {result.audio.id}")
-            print(f"Debug: Audio text_entry_id: {result.audio.text_entry_id}")
-            print(f"Debug: Audio status: {result.audio.status}")
+            logging.info(
+                f"Debug: Audio ID: {result.audio[0].id if result.audio else 'No audio'}"
+            )
+            logging.info(
+                f"Debug: Audio text_entry_id: {result.audio[0].text_entry_id if result.audio else 'No audio'}"
+            )
+            logging.info(
+                f"Debug: Audio status: {result.audio[0].status if result.audio else 'No audio'}"
+            )
 
         return TabGenerationResponse(
             id=result.id,
