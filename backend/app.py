@@ -16,19 +16,44 @@ from routers import (
 )
 import models
 import logging
+import requests
+from requests.exceptions import RequestException
+
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Log environment variables
-logger.debug(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
-
 # Log the current working directory
-logger.debug(f"Current working directory: {os.getcwd()}")
+logger.debug("DATABASE_URL: %s", os.getenv("DATABASE_URL"))
+logger.debug("Current working directory: %s", os.getcwd())
+
+TTS_API_URL = os.getenv("TTS_API_URL", "http://localhost:8080")
+URL_DELETE_CUSTOM_VOICES = f"{TTS_API_URL}/delete_all_custom_voices"
+URL_DELETE_AUDIO = f"{TTS_API_URL}/delete_all_audio"
+URL_CREATE_DEFAULT_VOICES = (
+    "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/"
+)
+
+
+def resource_request(method, url):
+    try:
+        response = requests.request(method, url, timeout=30)
+        response.raise_for_status()  # Raises an HTTPError for bad responses
+        logger.info("Successfully executed %s request to %s", method.upper(), url)
+        return response.json()  # Return JSON response
+    except RequestException as e:
+        logger.error(
+            "Failed to execute %s request to %s: %s", method.upper(), url, str(e)
+        )
+        return None
+
 
 # Drop all tables - careful with this
 # Base.metadata.drop_all(bind=engine)
+# resource_request("DELETE", URL_DELETE_CUSTOM_VOICES)
+# resource_request("DELETE", URL_DELETE_AUDIO)
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
