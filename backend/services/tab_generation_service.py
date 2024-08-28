@@ -198,7 +198,7 @@ def get_tab_generation(
             .filter(TabGeneration.tab_id == tab_id)
             .outerjoin(TextEntry, TextEntry.tab_generation_id == TabGeneration.id)
             .outerjoin(Audio, Audio.tab_generation_id == TabGeneration.id)
-            .order_by(TabGeneration.created_at.desc())
+            .filter(TabGeneration.id == tab_generation_id)
         )
 
         logging.debug(f"SQL Query: {query.statement}")

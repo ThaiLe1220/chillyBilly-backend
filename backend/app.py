@@ -32,9 +32,6 @@ logger.debug("Current working directory: %s", os.getcwd())
 TTS_API_URL = os.getenv("TTS_API_URL", "http://localhost:8080")
 URL_DELETE_CUSTOM_VOICES = f"{TTS_API_URL}/delete_all_custom_voices"
 URL_DELETE_AUDIO = f"{TTS_API_URL}/delete_all_audio"
-URL_CREATE_DEFAULT_VOICES = (
-    "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/"
-)
 
 
 def resource_request(method, url):
@@ -51,9 +48,9 @@ def resource_request(method, url):
 
 
 # Drop all tables - careful with this
-# Base.metadata.drop_all(bind=engine)
-# resource_request("DELETE", URL_DELETE_CUSTOM_VOICES)
-# resource_request("DELETE", URL_DELETE_AUDIO)
+Base.metadata.drop_all(bind=engine)
+resource_request("DELETE", URL_DELETE_CUSTOM_VOICES)
+resource_request("DELETE", URL_DELETE_AUDIO)
 
 # Create all tables
 Base.metadata.create_all(bind=engine)

@@ -30,3 +30,6 @@ curl -X DELETE http://localhost:8080/delete_voice/999/thuy_minh
 
 curl -X DELETE http://localhost:8080/delete_all_user_voices/999
 curl -X DELETE http://localhost:8080/delete_all_custom_voices
+
+
+
