@@ -191,7 +191,10 @@ def get_user_voices(
 
     voices = (
         db.query(Voice)
-        .filter((Voice.user_id == user_id) | (Voice.is_default == True))
+        .filter(
+            ((Voice.user_id == user_id) | (Voice.is_default == True))
+            & (Voice.status == "READY")
+        )
         .offset(skip)
         .limit(limit)
         .all()

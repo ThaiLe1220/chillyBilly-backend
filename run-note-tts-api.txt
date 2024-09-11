@@ -19,6 +19,9 @@ face-swap.12pmtech.link/api/v1/static/output/user/1/1724494426_default_en_male_3
 curl -X DELETE "http://localhost:8080/delete_all_audio"
 curl -X DELETE "http://localhost:8080/delete_all_user_audio/user/1"
 
+
+curl -X POST "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/" | jq '.'
+
 curl -X POST http://localhost:8080/add_voice \
   -F "file=@tts_api/static/Thùy Minh.m4a" \
   -F "user_id=12345" \
