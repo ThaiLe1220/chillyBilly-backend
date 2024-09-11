@@ -19,3 +19,4 @@ cd frontend/my-app
 npm install
 npm start
 
+curl -X POST "https://face-swap.12pmtech.link/api/v1/voices/create_defaults/" | jq '.'
